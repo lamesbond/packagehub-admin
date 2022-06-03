@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import dictApi from "@/api/core/dict";
+import dictApi from "@/api/core/doc";
 export default {
   name: "",
   // 定义数据

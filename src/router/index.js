@@ -57,9 +57,9 @@ export const constantRoutes = [
 
 
   {
-    path: '/core/user',
+    path: '/user',
     component: Layout,
-    redirect: '/core/user/list',
+    redirect: '/user/list',
     name: 'coreUserInfo',
     meta: { title: '用户管理', icon: 'user' },
     alwaysShow: true,
@@ -67,14 +67,14 @@ export const constantRoutes = [
       {
         path: 'list',
         name: 'coreUserInfoList',
-        component: () => import('@/views/core/user/list'),
+        component: () => import('@/views/user/list'),
         meta: { title: '用户列表' }
       }
     ]
   },
 
   {
-    path: '/core/project',
+    path: '/project',
     component: Layout,
     name: 'coreProject',
     meta: { title: '项目管理', icon: 'el-icon-s-unfold' },
@@ -83,13 +83,13 @@ export const constantRoutes = [
       {
         path: 'list',
         name: 'coreProjectList',
-        component: () => import('@/views/core/project/list'),
+        component: () => import('@/views/project/list'),
         meta: { title: '项目列表' }
       },
       {
         path: 'detail/:id',
         name: 'coreProjectDetail',
-        component: () => import('@/views/core/project/detail'),
+        component: () => import('@/views/project/detail'),
         meta: { title: '项目详情' },
         hidden: true
       }
@@ -97,7 +97,7 @@ export const constantRoutes = [
   },
 
   {
-    path: '/core/doc',
+    path: '/doc',
     component: Layout,
     name: 'coreDoc',
     meta: { title: '文档管理', icon: 'el-icon-s-flag' },
@@ -106,13 +106,13 @@ export const constantRoutes = [
       {
         path: 'list',
         name: 'coreDocList',
-        component: () => import('@/views/core/doc/list'),
+        component: () => import('@/views/doc/list'),
         meta: { title: '文档列表' }
       },
       {
-        path: 'detail/:name/:edition/:version',
+        path: 'detail/:id',
         name: 'coreDocDetail',
-        component: () => import('@/views/core/doc/detail'),
+        component: () => import('@/views/doc/detail'),
         meta: { title: '文档详情' },
         hidden: true
       }
@@ -120,9 +120,9 @@ export const constantRoutes = [
   },
 
   {
-    path: '/core',
+    path: '/dict',
     component: Layout,
-    redirect: '/core/dict/list',
+    redirect: '/dict/list',
     name: 'coreDict',
     meta: { title: '项目字典', icon: 'el-icon-setting' },
     alwaysShow: true,
@@ -130,7 +130,7 @@ export const constantRoutes = [
       {
         path: 'dict/list',
         name: '项目字典',
-        component: () => import('@/views/core/dict/list'),
+        component: () => import('@/views/dict/list'),
         meta: { title: '项目字典' }
       }
     ]
@@ -143,63 +143,6 @@ export const constantRoutes = [
  * the routes that need to be dynamically loaded based on user roles
  */
 export const asyncRoutes = [
-  {
-    path: '/nested',
-    component: Layout,
-    redirect: '/nested/menu1',
-    name: 'Nested',
-    meta: {
-      title: 'Nested',
-      icon: 'nested'
-    },
-    children: [
-      {
-        path: 'menu1',
-        component: () => import('@/views/nested/menu1/index'), // Parent router-view
-        name: 'Menu1',
-        meta: { title: 'Menu1' },
-        children: [
-          {
-            path: 'menu1-1',
-            component: () => import('@/views/nested/menu1/menu1-1'),
-            name: 'Menu1-1',
-            meta: { title: 'Menu1-1' }
-          },
-          {
-            path: 'menu1-2',
-            component: () => import('@/views/nested/menu1/menu1-2'),
-            name: 'Menu1-2',
-            meta: { title: 'Menu1-2' },
-            children: [
-              {
-                path: 'menu1-2-1',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1'),
-                name: 'Menu1-2-1',
-                meta: { title: 'Menu1-2-1' }
-              },
-              {
-                path: 'menu1-2-2',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-2'),
-                name: 'Menu1-2-2',
-                meta: { title: 'Menu1-2-2' }
-              }
-            ]
-          },
-          {
-            path: 'menu1-3',
-            component: () => import('@/views/nested/menu1/menu1-3'),
-            name: 'Menu1-3',
-            meta: { title: 'Menu1-3' }
-          }
-        ]
-      },
-      {
-        path: 'menu2',
-        component: () => import('@/views/nested/menu2/index'),
-        meta: { title: 'menu2' }
-      }
-    ]
-  },
 
   {
     path: 'external-link',
