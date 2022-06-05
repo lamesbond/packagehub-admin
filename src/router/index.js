@@ -115,6 +115,13 @@ export const constantRoutes = [
         component: () => import('@/views/doc/detail'),
         meta: { title: '文档详情' },
         hidden: true
+      },
+      {
+        path: 'xiangqing/:id',
+        name: 'coreDocXiangqing',
+        component: () => import('@/views/doc/xiangqing'),
+        meta: { title: '文档实验详情' },
+        hidden: true
       }
     ]
   },

@@ -1,7 +1,7 @@
 <template>
   <div class="custom-tree-container">
     <div class="block" style="width:300px">
-      <p>使用 scoped slot</p>
+      <el-button @click="forArr(data, isExpand)">{{isExpand ? "展开":"折叠"}}</el-button>
       <el-tree :data="data"
         node-key="id"
         default-expand-all
@@ -13,6 +13,7 @@
         @node-drag-over="handleDragOver"
         @node-drag-end="handleDragEnd"
         @node-drop="handleDrop"
+        ref="selectTree"
         draggable
         :allow-drop="allowDrop"
         :allow-drag="allowDrag">
@@ -23,64 +24,84 @@
                       @blur="() => submitEdit(node,data)"
                       v-model="newdocTitle"
                       style="height:20px line-height:20px"></el-input>
-            <!-- 放弃、提交按钮废弃，改为失去焦点自动提交 -->
-            <!-- <el-button type="text"
-              size="mini"
-              @click="() => cancelEdit(node,data)">C</el-button>
-            <el-button type="text"
-              size="mini"
-              @click="() => submitEdit(node,data)">S</el-button> -->
           </template>
           <!-- 如果不是编辑状态 -->
-          <span v-else
-                v-text="data.docTitle"></span>
+          <span v-else v-text="data.docTitle"></span>
           <span>
-            <el-button v-if="data.id!=1"
-                       type="text"
-                       size="mini"
-                       @click="() => edit(node,data)">
-              E
-            </el-button>
-            <el-button type="text"
-                       size="mini"
-                       @click="() => append(node,data)">
-              +
-            </el-button>
-            <el-button v-if="data.id!=1"
-                       type="text"
-                       size="mini"
-                       @click="() => remove(node, data)">
-              D
-            </el-button>
+            <el-dropdown trigger="click">
+              <span class="el-dropdown-link"><i class="el-icon-plus" /></span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="a"><el-button type="text" size="mini" @click="() => append(node,data)">新建文档</el-button></el-dropdown-item>
+                <el-dropdown-item command="b">新建表格</el-dropdown-item>
+                <el-dropdown-item command="c">新建画板</el-dropdown-item>
+                <el-dropdown-item divided command="c">从模板新建</el-dropdown-item>
+                <el-dropdown-item command="c">导入</el-dropdown-item>
+                <el-dropdown-item divided command="d">新建分组</el-dropdown-item>
+                <el-dropdown-item command="e">添加链接</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+
+            <el-dropdown trigger="click">
+              <span class="el-dropdown-link"><i class="el-icon-more" /></span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="a"><el-button v-if="data.id!=1" type="text" @click="() => edit(node,data)">重命名</el-button></el-dropdown-item>
+                <el-dropdown-item command="a">编辑文档</el-dropdown-item>
+                <el-dropdown-item command="b">复制</el-dropdown-item>
+                <el-dropdown-item command="c">移动</el-dropdown-item>
+                <el-dropdown-item command="c">导出</el-dropdown-item>
+                <el-dropdown-item divided command="d">移至暂存箱</el-dropdown-item>
+                <el-dropdown-item command="e"><el-button v-if="data.id!=1" type="text" @click="() => remove(node, data)">删除</el-button></el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+<!--            <el-button v-if="data.id!=1" type="text" size="mini" @click="() => edit(node,data)">E</el-button>-->
+<!--            <el-button type="text" size="mini" @click="() => append(node,data)">+</el-button>-->
+<!--            <el-button v-if="data.id!=1" type="text" size="mini" @click="() => remove(node, data)">D</el-button>-->
           </span>
         </span>
       </el-tree>
     </div>
   </div>
 </template>
-
 <script>
-// import { fetchList } from '@/api/article'
-import { showMenu } from '@/api/tmp/appium'
-import { updateApiGroup } from '@/api/tmp/appium'
-
-// let id = 1000
+import docApi from '@/api/core/doc'
+import {showMenu, updateApiGroup} from "@/api/tmp/appium";
+let id = 888
 export default {
-  name: '',
-  data() {
+  data () {
     return {
+
       data: [],
       newdocTitle: '',
       defaultProps: {
         children: 'children',
         docTitle: 'docTitle'
-      }
+      },
+      showCheckbox: true,
+      isExpand: true
     }
   },
-  created() {
+  created () {
+    // 创建时初始化signalList的值，也可以是一个方法
+    // 或者在某事件触发时改变signalList的值，树会随之改变
     this.getMenuData()
   },
   methods: {
+    handleCheckChange(data, checked, indeterminate) {
+      console.log(data);
+      console.log("idchecked::"+checked);
+      console.log(indeterminate);
+    },
+    forArr(arr, isExpand) {
+      let self = this;
+      this.isExpand = !this.isExpand;
+      arr.forEach((el) => {
+        self.$refs.selectTree.store.nodesMap[el.id].expanded = isExpand;
+        if(el.children){
+          self.forArr(el.children, isExpand);
+        }
+      });
+    },
+
     // 调api获取接口分组数据
     getMenuData() {
       showMenu(1)
@@ -215,6 +236,7 @@ export default {
   }
 }
 </script>
+
 <style scoped>
 .custom-tree-node {
   flex: 1;
@@ -230,8 +252,7 @@ export default {
   height: 20px;
 } */
 /* 修改el-input高度，方案二： */
-.el-input__inner {
+/deep/ .el-input__inner {
   height: 20px;
 }
 </style>
-

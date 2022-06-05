@@ -15,4 +15,11 @@ export default{
     })
   },
 
+  showMenu(id) {
+    return request({
+      url: `/admin/core/doc/showMenu/${id}`,
+      method: 'get'
+    })
+  },
+
 }
