@@ -35,23 +35,9 @@
           <span v-else
                 v-text="data.docTitle"></span>
           <span>
-            <el-button v-if="data.id!=1"
-                       type="text"
-                       size="mini"
-                       @click="() => edit(node,data)">
-              E
-            </el-button>
-            <el-button type="text"
-                       size="mini"
-                       @click="() => append(node,data)">
-              +
-            </el-button>
-            <el-button v-if="data.id!=1"
-                       type="text"
-                       size="mini"
-                       @click="() => remove(node, data)">
-              D
-            </el-button>
+            <el-button v-if="data.id!=1" type="text" size="mini" @click="() => edit(node,data)">E</el-button>
+            <el-button type="text" size="mini" @click="() => append(node,data)">+</el-button>
+            <el-button v-if="data.id!=1" type="text" size="mini" @click="() => remove(node, data)">D</el-button>
           </span>
         </span>
       </el-tree>

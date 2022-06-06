@@ -22,4 +22,27 @@ export default{
     })
   },
 
+  update(data) {
+    return request({
+      url: `/admin/core/doc/updateDoc`,
+      method: 'post',
+      data: data
+    })
+  },
+
+  save(data) {
+    return request({
+      url: `/admin/core/doc/saveDoc`,
+      method: 'post',
+      data: data
+    })
+  },
+
+  removeById(id) {
+    return request({
+      url: `/admin/core/doc/removeDoc/` + id,
+      method: 'delete'
+    })
+  },
+
 }

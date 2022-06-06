@@ -31,26 +31,26 @@
             <el-dropdown trigger="click">
               <span class="el-dropdown-link"><i class="el-icon-plus" /></span>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="a"><el-button type="text" size="mini" @click="() => append(node,data)">新建文档</el-button></el-dropdown-item>
-                <el-dropdown-item command="b">新建表格</el-dropdown-item>
-                <el-dropdown-item command="c">新建画板</el-dropdown-item>
-                <el-dropdown-item divided command="c">从模板新建</el-dropdown-item>
-                <el-dropdown-item command="c">导入</el-dropdown-item>
-                <el-dropdown-item divided command="d">新建分组</el-dropdown-item>
-                <el-dropdown-item command="e">添加链接</el-dropdown-item>
+                <el-button type="text" @click="() => append(node,data)">新建文档</el-button>
+                <el-dropdown-item>新建表格</el-dropdown-item>
+                <el-dropdown-item>新建画板</el-dropdown-item>
+                <el-dropdown-item divided>从模板新建</el-dropdown-item>
+                <el-dropdown-item>导入</el-dropdown-item>
+                <el-dropdown-item divided>新建分组</el-dropdown-item>
+                <el-dropdown-item>添加链接</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
 
             <el-dropdown trigger="click">
               <span class="el-dropdown-link"><i class="el-icon-more" /></span>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="a"><el-button v-if="data.id!=1" type="text" @click="() => edit(node,data)">重命名</el-button></el-dropdown-item>
-                <el-dropdown-item command="a">编辑文档</el-dropdown-item>
-                <el-dropdown-item command="b">复制</el-dropdown-item>
-                <el-dropdown-item command="c">移动</el-dropdown-item>
-                <el-dropdown-item command="c">导出</el-dropdown-item>
-                <el-dropdown-item divided command="d">移至暂存箱</el-dropdown-item>
-                <el-dropdown-item command="e"><el-button v-if="data.id!=1" type="text" @click="() => remove(node, data)">删除</el-button></el-dropdown-item>
+                <el-button v-if="data.id!=1" type="text" @click="() => edit(node,data)">重命名</el-button>
+                <el-dropdown-item>编辑文档</el-dropdown-item>
+                <el-dropdown-item>复制</el-dropdown-item>
+                <el-dropdown-item>移动</el-dropdown-item>
+                <el-dropdown-item>导出</el-dropdown-item>
+                <el-dropdown-item divided>移至暂存箱</el-dropdown-item>
+                <el-button v-if="data.id!=1" type="text" @click="() => remove(node, data)">   删除</el-button>
               </el-dropdown-menu>
             </el-dropdown>
 <!--            <el-button v-if="data.id!=1" type="text" size="mini" @click="() => edit(node,data)">E</el-button>-->
@@ -167,7 +167,13 @@ export default {
         this.$set(data, 'children', [])
       }
       data.children.push(newChild)
-      this.updateApiGroup(this.data)
+      console.log("要增加的数据是：",data)
+      var savedata = {}
+      savedata.id = data.children[0].id
+      savedata.parentId = data.id
+      savedata.docTitle = data.children[0].docTitle
+      console.log("要增加的数据是：",savedata)
+      docApi.save(savedata)
     },
 
     remove(node, data) {
@@ -175,7 +181,7 @@ export default {
       const children = parent.data.children || parent.data
       const index = children.findIndex(d => d.id === data.id)
       children.splice(index, 1)
-      this.updateApiGroup(this.data)
+      docApi.removeById(data.id)
     },
 
     edit(node, data) {
@@ -205,8 +211,8 @@ export default {
         this.newdocTitle = ''
         this.$set(data, 'isEdit', 0)
         // console.log('after:', data.id, data.docTitle)
-        // console.log(this.data)
-        this.updateApiGroup(this.data)
+        console.log("修改过后的data：",data.id, data.docTitle)
+        docApi.update(data)
       }
     },
 
@@ -217,9 +223,9 @@ export default {
       this.$set(data, 'isEdit', 0)
     },
 
-    updateApiGroup(data) {
+    updateDoc(data) {
       console.log(data)
-      updateApiGroup(1, data)
+      docApi.update(data)
         .then(response => {
           console.log(response)
         })
