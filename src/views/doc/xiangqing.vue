@@ -5,16 +5,16 @@
       <el-tree :data="data"
         node-key="id"
         default-expand-all
-        :expand-on-click-node="false"
+        :expand-on-click-node="true"
+        show-checkbox
+        check-strictly
         @node-click="nodeclick"
-        @node-drag-start="handleDragStart"
-        @node-drag-enter="handleDragEnter"
-        @node-drag-leave="handleDragLeave"
-        @node-drag-over="handleDragOver"
+
         @node-drag-end="handleDragEnd"
         @node-drop="handleDrop"
         ref="selectTree"
         draggable
+        check-on-click-node="true"
         :allow-drop="allowDrop"
         :allow-drag="allowDrag">
         <span class="custom-tree-node" slot-scope="{ node, data }">
@@ -64,8 +64,7 @@
 </template>
 <script>
 import docApi from '@/api/core/doc'
-import {showMenu, updateApiGroup} from "@/api/tmp/appium";
-let id = 888
+
 export default {
   data () {
     return {
@@ -83,7 +82,7 @@ export default {
   created () {
     // 创建时初始化signalList的值，也可以是一个方法
     // 或者在某事件触发时改变signalList的值，树会随之改变
-    this.getMenuData()
+    this.getMenuData(this.$route.params.id)
   },
   methods: {
     handleCheckChange(data, checked, indeterminate) {
@@ -103,15 +102,10 @@ export default {
     },
 
     // 调api获取接口分组数据
-    getMenuData() {
-      showMenu(1)
-        .then(response => {
-          this.data = response.data.docMenu
-          console.log('data:', this.data)
-        })
-        .catch(err => {
-          console.log(err)
-        })
+    getMenuData(id) {
+      docApi.showMenu(id).then(response => {
+        this.data = response.data.docMenu
+      })
     },
     handleDragStart(node, ev) {
       console.log('drag start', node.data.docTitle)
@@ -128,13 +122,17 @@ export default {
     handleDragEnd(draggingNode, dropNode, dropType, ev) {
       console.log(
         'tree drag end: ',
-        dropNode && dropNode.data.docTitle,
-        dropType
+        "handleDragEnddraggingNode: ",draggingNode,
+        "dropNode:",dropNode,
+        "标题",dropNode.data.docTitle,
+        "dropType",dropType,
+        "ev",ev
       )
       // 调后端更新
       this.updateApiGroup(this.data)
     },
     handleDrop(draggingNode, dropNode, dropType, ev) {
+      console.log('handleDropdraggingNode: ', draggingNode.data.docTitle, dropType)
       console.log('tree drop: ', dropNode.data.docTitle, dropType)
     },
     allowDrop(draggingNode, dropNode, type) {
@@ -167,11 +165,11 @@ export default {
         this.$set(data, 'children', [])
       }
       data.children.push(newChild)
-      console.log("要增加的数据是：",data)
+      // console.log("要增加的数据是：",data)
       var savedata = {}
-      savedata.id = data.children[0].id
+      savedata.id = timestamp
       savedata.parentId = data.id
-      savedata.docTitle = data.children[0].docTitle
+      savedata.docTitle = 'T' + timestamp
       console.log("要增加的数据是：",savedata)
       docApi.save(savedata)
     },

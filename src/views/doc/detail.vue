@@ -1,48 +1,94 @@
 <template>
-  <div class="custom-tree-container">
-    <div class="block" style="width:300px">
-      <p>使用 scoped slot</p>
-      <el-tree :data="data"
-        node-key="id"
-        default-expand-all
-        :expand-on-click-node="false"
-        @node-click="nodeclick"
-        @node-drag-start="handleDragStart"
-        @node-drag-enter="handleDragEnter"
-        @node-drag-leave="handleDragLeave"
-        @node-drag-over="handleDragOver"
-        @node-drag-end="handleDragEnd"
-        @node-drop="handleDrop"
-        draggable
-        :allow-drop="allowDrop"
-        :allow-drag="allowDrag">
-        <span class="custom-tree-node" slot-scope="{ node, data }">
-          <!-- 如果是编辑状态 -->
-          <template v-if="data.isEdit==1">
-            <el-input ref="input"
-                      @blur="() => submitEdit(node,data)"
-                      v-model="newdocTitle"
-                      style="height:20px line-height:20px"></el-input>
-            <!-- 放弃、提交按钮废弃，改为失去焦点自动提交 -->
-            <!-- <el-button type="text"
-              size="mini"
-              @click="() => cancelEdit(node,data)">C</el-button>
-            <el-button type="text"
-              size="mini"
-              @click="() => submitEdit(node,data)">S</el-button> -->
-          </template>
-          <!-- 如果不是编辑状态 -->
-          <span v-else
-                v-text="data.docTitle"></span>
-          <span>
-            <el-button v-if="data.id!=1" type="text" size="mini" @click="() => edit(node,data)">E</el-button>
-            <el-button type="text" size="mini" @click="() => append(node,data)">+</el-button>
-            <el-button v-if="data.id!=1" type="text" size="mini" @click="() => remove(node, data)">D</el-button>
-          </span>
+  <div>
+    <el-switch
+      v-model="draggable"
+      active-color="#13ce66"
+      inactive-color="#ff4949"
+      active-text="启动菜单拖拽"
+      inactive-text="关闭菜单拖拽"
+    ></el-switch>
+
+    <el-button
+      type="primary"
+      size="mini"
+      round
+      @click="batchSave"
+      v-if="draggable"
+    >保存批量拖拽</el-button
+    >
+    <el-button
+      type="primary"
+      size="mini"
+      round
+      @click="cancelBatchDrag"
+      v-if="draggable"
+    >取消批量拖拽</el-button
+    >
+
+    <el-tree
+      :data="menus"
+      :props="defaultProps"
+      :expand-on-click-node="false"
+      show-checkbox
+      node-key="catId"
+      :default-expanded-keys="expandedKey"
+      :draggable="draggable"
+      :allow-drop="allowDrop"
+      @node-drop="handleDrop"
+    >
+      <span class="custom-tree-node" slot-scope="{ node, data }">
+        <span>{{ node.label }}</span>
+        <span>
+          <el-button
+            v-if="node.level <= 2"
+            type="text"
+            size="mini"
+            @click="() => append(data)"
+          >
+            Append
+          </el-button>
+          <el-button type="text" size="mini" @click="() => edit(data)">
+            Edit
+          </el-button>
+          <el-button
+            v-if="node.childNodes.length == 0"
+            type="text"
+            size="mini"
+            @click="() => remove(node, data)"
+          >
+            Delete
+          </el-button>
         </span>
-      </el-tree>
-    </div>
+      </span>
+    </el-tree>
+
+    <el-dialog
+      :title="dialogType"
+      :visible.sync="dialogVisible"
+      width="30%"
+      :close-on-click-modal="false"
+    >
+      <el-form :model="category">
+        <el-form-item label="分类名称">
+          <el-input v-model="category.name" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="图标">
+          <el-input v-model="category.icon" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="计量单位">
+          <el-input
+            v-model="category.productUnit"
+            autocomplete="off"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitData">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
+
 </template>
 
 <script>
@@ -55,14 +101,40 @@ export default {
   name: '',
   data() {
     return {
-      data: [],
-      newdocTitle: '',
+      menus: [],
+      //expandedKey 菜单默认展开的结构状态 传入父节点id
+      expandedKey: [],
+      //dialogVisible控制对话框/模态框是否展示 默认不展示
+      dialogVisible: false,
+      //修改新增复用对话框的依据 edit|append
+      dialogType: "",
+      //菜单拖拽功能判断当前节点的子节点最大深度
+      maxLevel: 0,
+      //菜单拖拽后封装新的节点信息
+      updateNodes: [],
+      //菜单拖拽开启标记 默认不开启
+      draggable: false,
+      //pCid用于批量拖拽后向后台传递最新节点信息后保持之前结构用 由于可能需要展开多个菜单所以用数组接收
+      pCid: [],
+      //对话框内表单绑定的数据对象 其中菜单ID-catId是对话框修改新增复用的依据
+      category: {
+        name: "",
+        parentCid: 0,
+        catLevel: 0,
+        showStatus: 1,
+        sort: 0,
+        icon: "",
+        productUnit: "",
+        catId: null,
+      },
       defaultProps: {
-        children: 'children',
-        docTitle: 'docTitle'
-      }
-    }
+        //label：哪个属性是作为标签的值需要展示出来，children：哪个属性需要作为标签的子树
+        children: "children",
+        label: "name",
+      },
+    };
   },
+
   created() {
     this.getMenuData()
   },
