@@ -1,6 +1,6 @@
 module.exports = {
 
-  title: '尚融宝管理平台',
+  title: 'packagehub后台',
 
   /**
    * @type {boolean} true | false
