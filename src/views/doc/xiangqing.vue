@@ -9,8 +9,6 @@
         show-checkbox
         check-strictly
         @node-click="nodeclick"
-
-        @node-drag-end="handleDragEnd"
         @node-drop="handleDrop"
         ref="selectTree"
         draggable
@@ -68,7 +66,6 @@ import docApi from '@/api/core/doc'
 export default {
   data () {
     return {
-
       data: [],
       newdocTitle: '',
       defaultProps: {
@@ -82,7 +79,7 @@ export default {
   created () {
     // 创建时初始化signalList的值，也可以是一个方法
     // 或者在某事件触发时改变signalList的值，树会随之改变
-    this.getMenuData(this.$route.params.id)
+    this.listMenuById(this.$route.params.id)
   },
   methods: {
     handleCheckChange(data, checked, indeterminate) {
@@ -102,38 +99,48 @@ export default {
     },
 
     // 调api获取接口分组数据
-    getMenuData(id) {
-      docApi.showMenu(id).then(response => {
+    listMenuById(id) {
+      docApi.listMenuById(id).then(response => {
         this.data = response.data.docMenu
       })
     },
-    handleDragStart(node, ev) {
-      console.log('drag start', node.data.docTitle)
-    },
-    handleDragEnter(draggingNode, dropNode, ev) {
-      console.log('tree drag enter: ', dropNode.data.docTitle)
-    },
-    handleDragLeave(draggingNode, dropNode, ev) {
-      console.log('tree drag leave: ', dropNode.data.docTitle)
-    },
-    handleDragOver(draggingNode, dropNode, ev) {
-      console.log('tree drag over: ', dropNode.data.docTitle)
-    },
-    handleDragEnd(draggingNode, dropNode, dropType, ev) {
+    // handleDragStart(node, ev) {
+    //   console.log('drag start', node.data.docTitle)
+    // },
+    // handleDragEnter(draggingNode, dropNode, ev) {
+    //   console.log('tree drag enter: ', dropNode.data.docTitle)
+    // },
+    // handleDragLeave(draggingNode, dropNode, ev) {
+    //   console.log('tree drag leave: ', dropNode.data.docTitle)
+    // },
+    // handleDragOver(draggingNode, dropNode, ev) {
+    //   console.log('tree drag over: ', dropNode.data.docTitle)
+    // },
+    // handleDragEnd(draggingNode, dropNode, dropType, ev) {
+    //   console.log(
+    //     'tree drag end: ',
+    //     "handleDragEnddraggingNode: ",draggingNode,
+    //     "dropNode:",dropNode,
+    //     "标题",dropNode.data.docTitle,
+    //     "dropType",dropType,
+    //     "ev",ev
+    //   )
+    //   // 调后端更新
+    //   this.updateApiGroup(this.data)
+    // },
+    handleDrop(draggingNode, dropNode, dropType, ev) {
       console.log(
-        'tree drag end: ',
-        "handleDragEnddraggingNode: ",draggingNode,
-        "dropNode:",dropNode,
-        "标题",dropNode.data.docTitle,
+        'tree drag drop: ',
+        "源节点标题: ",draggingNode.data.docTitle,
+        "目标标题",dropNode.data.docTitle,
         "dropType",dropType,
         "ev",ev
       )
-      // 调后端更新
-      this.updateApiGroup(this.data)
-    },
-    handleDrop(draggingNode, dropNode, dropType, ev) {
-      console.log('handleDropdraggingNode: ', draggingNode.data.docTitle, dropType)
-      console.log('tree drop: ', dropNode.data.docTitle, dropType)
+      let updateData = {}
+      updateData.id = draggingNode.data.id
+      updateData.destId = dropNode.data.id
+      updateData.method = dropType
+      docApi.updateDocPosition(updateData)
     },
     allowDrop(draggingNode, dropNode, type) {
       if (dropNode.data.id === 1) {

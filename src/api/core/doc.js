@@ -1,9 +1,16 @@
 import request from '@/utils/request'
 
 export default{
-  listByParentId(parentId) {
+  listProjectById(parentId) {
     return request({
-      url: `/admin/core/doc/listByParentId/${parentId}`,
+      url: `/admin/core/doc/listProjectById/${parentId}`,
+      method: 'get'
+    })
+  },
+
+  listMenuById(id) {
+    return request({
+      url: `/admin/core/doc/listMenuById/${id}`,
       method: 'get'
     })
   },
@@ -15,16 +22,17 @@ export default{
     })
   },
 
-  showMenu(id) {
+  updateDocInfo(data) {
     return request({
-      url: `/admin/core/doc/showMenu/${id}`,
-      method: 'get'
+      url: `/admin/core/doc/updateDoc`,
+      method: 'post',
+      data: data
     })
   },
 
-  update(data) {
+  updateDocPosition(data) {
     return request({
-      url: `/admin/core/doc/updateDoc`,
+      url: `/admin/core/doc/updateDocPosition`,
       method: 'post',
       data: data
     })
