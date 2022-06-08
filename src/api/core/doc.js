@@ -1,9 +1,9 @@
 import request from '@/utils/request'
 
 export default{
-  listProjectById(parentId) {
+  listChildProjectById(id) {
     return request({
-      url: `/admin/core/doc/listProjectById/${parentId}`,
+      url: `/admin/core/doc/listChildProjectById/${id}`,
       method: 'get'
     })
   },

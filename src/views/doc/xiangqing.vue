@@ -1,5 +1,6 @@
 <template>
   <div class="custom-tree-container">
+    <h1>idea</h1>
     <div class="block" style="width:300px">
       <el-button @click="forArr(data, isExpand)">{{isExpand ? "展开":"折叠"}}</el-button>
       <el-tree :data="data"
@@ -143,19 +144,21 @@ export default {
       docApi.updateDocPosition(updateData)
     },
     allowDrop(draggingNode, dropNode, type) {
-      if (dropNode.data.id === 1) {
-        return false
-      } else {
-        return true
-      }
+      return true
+      // if (dropNode.data.id === 1) {
+      //   return false
+      // } else {
+      //   return true
+      // }
     },
     allowDrag(draggingNode) {
+      return true
       // 顶层默认分组不允许拖拽
-      if (draggingNode.data.id === 1) {
-        return false
-      } else {
-        return true
-      }
+      // if (draggingNode.data.id === 1) {
+      //   return false
+      // } else {
+      //   return true
+      // }
       // return draggingNode.data.docTitle.indexOf('三级 3-2-2') === -1
     },
 
