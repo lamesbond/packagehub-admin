@@ -4,6 +4,7 @@
     <div>
       <el-table
         ref="cimsDictTable"
+        default-expand-all
         :data="tableData"
         style="width: 100%"
         row-key="id"
@@ -21,9 +22,8 @@
         @select="select22"
         @select-all="selectAll"
       >
-        <el-table-column label="列表" min-width="400px">
+        <el-table-column label="条件" min-width="400px">
           <template slot-scope="scope">
-
             <!-- 这部分是设置虚线逻辑 -->
             <template v-for="(item,l) in scope.row.level">
               <!-- 根据delItemFlag判断 是true或者'true'则对应的竖虚线是多余的 需要删除 -->
@@ -33,19 +33,19 @@
             </template>
             <!-- 这个是设置每个层级最后的那个节点 多加一个竖线 覆盖多余的行高虚线 -->
             <span v-if="scope.row.moreOneDash" class="more_dash" :style="{'left':`${(scope.row.level)*16 - 6}`+'px'}"></span>
-
             <span class="showName">{{ scope.row.conditionName }}</span>
-            <i v-if="scope.row.farOrSon=='first'|| scope.row.farOrSon=='middle'" style="font-size:18px;margin-left:5px;color:#00ff00;cursor: pointer;"
-               class="el-icon-folder-add" @click="addOneRow(scope.row,scope.$index,'middle')"></i>
-            <i v-if="scope.row.farOrSon=='first'|| scope.row.farOrSon=='middle'" style="font-size:18px;margin-left:5px;color:#00ff00;cursor: pointer;"
-               class="el-icon-document-add" @click="addOneRow(scope.row,scope.$index,'last')"></i>
-            <i v-if="scope.row.farOrSon=='middle'|| scope.row.farOrSon=='last'" style="font-size:18px;margin-left:5px;color:#f1ff;cursor: pointer;"
-               class="el-icon-edit" @click="editRow(scope.row,scope.$index)"></i>
-            <i v-if="scope.row.farOrSon=='middle'|| scope.row.farOrSon=='last'" style="font-size:18px;margin-left:5px;color:#1890FF;cursor: pointer;"
-               type="primary" class="el-icon-close" @click="delRow(scope.row,scope.$index)"></i>
-
+            <i v-if="scope.row.farOrSon=='first'|| scope.row.farOrSon=='middle'" style="font-size:18px;margin-left:5px;color:#00ff00;cursor: pointer;" class="el-icon-folder-add" @click="addOneRow(scope.row,scope.$index,'middle')"></i>
+            <i v-if="scope.row.farOrSon=='first'|| scope.row.farOrSon=='middle'" style="font-size:18px;margin-left:5px;color:#00ff00;cursor: pointer;" class="el-icon-document-add" @click="addOneRow(scope.row,scope.$index,'last')"></i>
+            <i v-if="scope.row.farOrSon=='middle'|| scope.row.farOrSon=='last'" style="font-size:18px;margin-left:5px;color:#f1ff;cursor: pointer;" class="el-icon-edit" @click="editRow(scope.row,scope.$index)"></i>
+            <i v-if="scope.row.farOrSon=='middle'|| scope.row.farOrSon=='last'" style="font-size:18px;margin-left:5px;color:#1890FF;cursor: pointer;" type="primary" class="el-icon-close" @click="delRow(scope.row,scope.$index)"></i>
           </template>
         </el-table-column>
+
+        <el-table-column label="部门" width="140px"></el-table-column>
+
+        <el-table-column label="详情" width="140px"></el-table-column>
+
+        <el-table-column label="商业险（%）"></el-table-column>
 
         <el-table-column label="操作" width="200px">
           <template slot-scope="scope">
@@ -536,9 +536,6 @@ export default {
       this.checkEveryItem()
     },
     addOneRow (row, index, farOrSon) {
-      console.log("新增的row：" + row.id)
-      console.log("新增的index：" + index)
-      console.log("新增的farOrSon：" + farOrSon)
       this.selectAddLast = farOrSon
       let item = {}
       let val = { newName: `新的条件${Math.floor(Math.random() * (1 - 1000) + 1000)}` }// 假设这个就是新增是一行的值

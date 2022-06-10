@@ -1,16 +1,52 @@
 <template>
-  <div class="a_tree_box">
+  <div class="app-container">
     <el-button type="primary" size="mini" @click="addProject()">添加项目</el-button>
     <!-- 列表 -->
-    <el-table :data="list" border row-key="id" lazy :load="load">
+    <el-table
+      ref="cimsDictTable"
+      :data="list"
+      row-key="id"
+      border
+      stripe
+      size="mini"
+      class="data-table"
+      tooltip-effect="dark"
+      header-row-class-name="data-table-header"
+      lazy
+      :expand-row-keys="expands"
+      :show-overflow-tooltip="true"
+      :load="load"
+      :tree-props="{children:'children', hasChildren: 'hasChildren'}"
+      @expand-change="handleExpandChange"
+    >
       <el-table-column type="index" label="序号" width="60" align="center" />
-      <el-table-column prop="docTitle" label="文档列表" width="260" />
+      <el-table-column label="文档列表" width="260">
+        <template slot-scope="scope">
+          <span class="showName">{{ scope.row.docTitle }}</span>
+          <el-tooltip class="item" effect="dark" content="添加子分类" placement="top">
+            <i v-if="scope.row.isDoc=='0'" style="font-size:18px;margin-left:5px;color:#00ff00;cursor: pointer;"
+               class="el-icon-folder-add" @click="addOneRow(scope.row,scope.$index,'0')"></i>
+          </el-tooltip>
+          <el-tooltip class="item" effect="dark" content="添加发行版本" placement="top">
+            <i v-if="scope.row.isDoc=='0'" style="font-size:18px;margin-left:5px;color:#00ff00;cursor: pointer;"
+               class="el-icon-document-add" @click="addOneRow(scope.row,scope.$index,'1')"></i>
+          </el-tooltip>
+          <el-tooltip class="item" effect="dark" content="编辑" placement="top">
+            <i v-if="scope.row.farOrSon=='middle'|| scope.row.farOrSon=='last'" style="font-size:18px;margin-left:5px;color:#f1ff;cursor: pointer;"
+               class="el-icon-edit" @click="editRow(scope.row,scope.$index)"></i>
+          </el-tooltip>
+          <el-tooltip class="item" effect="dark" content="删除此节点及所有子节点" placement="top">
+            <i v-if="scope.row.farOrSon=='middle'|| scope.row.farOrSon=='last'" style="font-size:18px;margin-left:5px;color:#1890FF;cursor: pointer;"
+               type="primary" class="el-icon-close" @click="delRow(scope.row,scope.$index)"></i>
+          </el-tooltip>
+        </template>
+      </el-table-column>
       <el-table-column prop="amount" label="部门" />
       <el-table-column prop="period" label="项目描述" />
       <el-table-column prop="param.status" label="发布状态" />
 
       <el-table-column label="操作" width="150" align="center">
-        <template slot-scope="scope", type="index">
+        <template slot-scope="scope">
           <el-button type="primary" size="mini">
             <router-link :to="'/doc/detail/' + scope.row.id">查看/编辑</router-link>
           </el-button>
@@ -25,14 +61,7 @@
             </el-dropdown-menu>
           </el-dropdown>
           <el-button type="warning" size="mini" @click="delete(scope.row.id)">删除</el-button>
-
-          <el-button
-            type="warning"
-            size="mini"
-            @click="makeLoan(scope.row.id)"
-          >
-            发布
-          </el-button>
+          <el-button type="warning" size="mini" @click="makeLoan(scope.row.id)">发布</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -45,7 +74,11 @@ export default {
   name: "",
   data() {
     return {
-      list: [] // 列表
+      list: [], // 列表
+      // ref: 'cimsDictTable',
+      // cimsDictTable: [],
+      expands: [],
+      tableTreeRefreshTool: {}
     }
   },
 
@@ -54,6 +87,7 @@ export default {
   },
 
   methods: {
+
     fetchData() {
       docApi.listChildProjectById(0).then(response => {
         this.list = response.data.childList
@@ -61,9 +95,83 @@ export default {
     },
     // 加载列表数据
     load(tree, treeNode, resolve) {
+      this.tableTreeRefreshTool[tree.id] = {}
+      // 重要！保存resolve方法，以便后续使用
+      this.tableTreeRefreshTool[tree.id].resolve = resolve
+      // 记录展开次数，具体作用后续介绍
+      this.tableTreeRefreshTool[tree.id].expandCount = 0
       docApi.listChildProjectById(tree.id).then(response => {
         resolve(response.data.childList)
       })
+    },
+
+    addOneRow(row,index,isDoc) {
+      var timestamp = new Date().getTime()
+      let val = `新的分类${Math.floor(Math.random() * (1 - 1000) + 1000)}`
+      const newRow = {
+        id: timestamp,
+        parentId: row.id,
+        isEdit: 0,
+        isDoc: isDoc,
+        docTitle: val,
+        children: []
+      }
+      // if (row.children) {
+      //   row.children.unshift(newRow)
+      // } else {
+      //   // 添加数据
+      //   this.$set(row, 'children', [newRow])
+      // }
+
+      // this.$nextTick(() => {
+      //   // 更新后打开节点
+      //   // const { tree, treeNode, resolve } = this.maps.get(row.id);
+      //   // this.load(tree, treeNode, resolve)
+      //   this.$refs.cimsDictTable.toggleRowExpansion(row, true);
+      //
+      // })
+
+      this.printList(row, newRow)
+
+      // console.log("rowrr:" + row.children + row.docTitle)
+      // this.expands.push("2")
+      // this.$set(
+      //   this.$refs.cimsDictTable.store.states.lazyTreeNodeMap,
+      //   parentId,
+      //   nodes
+      // )
+    },
+
+    async printList(row, newRow) {
+      let expandList = [];
+      await docApi.save(newRow)
+      await docApi.listChildProjectById(row.id).then(response => {
+        expandList = response.data.childList
+      })
+      this.$set(row, 'children', expandList)
+      this.expands = []
+      this.expands.push(row.id+"")
+      this.$refs.cimsDictTable.toggleRowExpansion(row, false);
+
+      console.log("expandlist:" + expandList)
+      console.log(row)
+    },
+
+    handleExpandChange (row, expanded) {
+      console.log("expand-change触发了，状态expanded是：" + expanded)
+      // 获取到之前保存的全局变量
+      // const curr = this.tableTreeRefreshTool[row.id]
+      // // 展开次数 +1
+      // curr.expandCount++
+      // // 如果是展开状态，且展开次数大于1，且上一次的状态为折叠，则请求api数据，更新子菜单
+      // if (expanded && curr.expandCount > 1 && !curr.prevStatus) {
+      //   // api请求
+      //   docApi.listChildProjectById(row.id).then(response => {
+      //     curr.resolve(response.data.childList)
+      //   })
+      // }
+      // // 保存本次的展开或折叠状态，用于下次判断
+      // curr.prevStatus = expanded
     },
 
     addProject() {
@@ -79,6 +187,28 @@ export default {
       }
       docApi.save(newProject)
       this.list.push(newProject)
+    },
+
+    refTable () {
+      let _this = this
+      function dg (data) {
+        for (let i in data) {
+          if (data[i].children) {
+            _this.updateTableTree(data[i].id, data[i].children)
+            dg(data[i].children)
+          }
+        }
+      }
+      dg(this.list)
+    },
+
+    updateTableTree (parentId, nodes) {
+      // 更新需要先更新上级节点
+      this.$set(
+        this.$refs.cimsDictTable.store.states.lazyTreeNodeMap,
+        parentId,
+        nodes
+      )
     },
 
     addCategory(row,index) {
