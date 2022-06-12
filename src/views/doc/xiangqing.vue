@@ -21,11 +21,11 @@
           <template v-if="data.isEdit==1">
             <el-input ref="input"
                       @blur="() => submitEdit(node,data)"
-                      v-model="newdocTitle"
+                      v-model="newtitle"
                       style="height:20px line-height:20px"></el-input>
           </template>
           <!-- 如果不是编辑状态 -->
-          <span v-else v-text="data.docTitle"></span>
+          <span v-else v-text="data.title"></span>
           <span>
             <el-dropdown trigger="click">
               <span class="el-dropdown-link"><i class="el-icon-plus" /></span>
@@ -68,10 +68,10 @@ export default {
   data () {
     return {
       data: [],
-      newdocTitle: '',
+      newtitle: '',
       defaultProps: {
         children: 'children',
-        docTitle: 'docTitle'
+        title: 'title'
       },
       showCheckbox: true,
       isExpand: true
@@ -106,23 +106,23 @@ export default {
       })
     },
     // handleDragStart(node, ev) {
-    //   console.log('drag start', node.data.docTitle)
+    //   console.log('drag start', node.data.title)
     // },
     // handleDragEnter(draggingNode, dropNode, ev) {
-    //   console.log('tree drag enter: ', dropNode.data.docTitle)
+    //   console.log('tree drag enter: ', dropNode.data.title)
     // },
     // handleDragLeave(draggingNode, dropNode, ev) {
-    //   console.log('tree drag leave: ', dropNode.data.docTitle)
+    //   console.log('tree drag leave: ', dropNode.data.title)
     // },
     // handleDragOver(draggingNode, dropNode, ev) {
-    //   console.log('tree drag over: ', dropNode.data.docTitle)
+    //   console.log('tree drag over: ', dropNode.data.title)
     // },
     // handleDragEnd(draggingNode, dropNode, dropType, ev) {
     //   console.log(
     //     'tree drag end: ',
     //     "handleDragEnddraggingNode: ",draggingNode,
     //     "dropNode:",dropNode,
-    //     "标题",dropNode.data.docTitle,
+    //     "标题",dropNode.data.title,
     //     "dropType",dropType,
     //     "ev",ev
     //   )
@@ -132,8 +132,8 @@ export default {
     handleDrop(draggingNode, dropNode, dropType, ev) {
       console.log(
         'tree drag drop: ',
-        "源节点标题: ",draggingNode.data.docTitle,
-        "目标标题",dropNode.data.docTitle,
+        "源节点标题: ",draggingNode.data.title,
+        "目标标题",dropNode.data.title,
         "dropType",dropType,
         "ev",ev
       )
@@ -159,7 +159,7 @@ export default {
       // } else {
       //   return true
       // }
-      // return draggingNode.data.docTitle.indexOf('三级 3-2-2') === -1
+      // return draggingNode.data.title.indexOf('三级 3-2-2') === -1
     },
 
     append(node, data) {
@@ -168,7 +168,7 @@ export default {
       const newChild = {
         id: timestamp,
         isEdit: 0,
-        docTitle: 'T' + timestamp,
+        title: 'T' + timestamp,
         children: []
       }
       if (!data.children) {
@@ -179,7 +179,7 @@ export default {
       var savedata = {}
       savedata.id = timestamp
       savedata.parentId = data.id
-      savedata.docTitle = 'T' + timestamp
+      savedata.title = 'T' + timestamp
       console.log("要增加的数据是：",savedata)
       docApi.save(savedata)
     },
@@ -197,37 +197,37 @@ export default {
         'before:',
         data.id,
         // data.parentApiGroupId,
-        data.docTitle,
+        data.title,
         data.isEdit
       )
       this.$set(data, 'isEdit', 1)
-      this.newdocTitle = data.docTitle
+      this.newtitle = data.title
       this.$nextTick(() => {
         this.$refs.input.focus()
       })
-      console.log('after:', data.id, data.docTitle, data.isEdit)
+      console.log('after:', data.id, data.title, data.isEdit)
     },
 
     submitEdit(node, data) {
       // console.log('点击了保存按钮')
-      if (data.docTitle == this.newdocTitle) {
+      if (data.title == this.newtitle) {
         console.log('没有修改')
-        this.newdocTitle = ''
+        this.newtitle = ''
         this.$set(data, 'isEdit', 0)
       } else {
-        this.$set(data, 'docTitle', this.newdocTitle)
-        this.newdocTitle = ''
+        this.$set(data, 'title', this.newtitle)
+        this.newtitle = ''
         this.$set(data, 'isEdit', 0)
-        // console.log('after:', data.id, data.docTitle)
-        console.log("修改过后的data：",data.id, data.docTitle)
+        // console.log('after:', data.id, data.title)
+        console.log("修改过后的data：",data.id, data.title)
         docApi.update(data)
       }
     },
 
     cancelEdit(node, data) {
       // console.log('放弃编辑')
-      // console.log(data.id, data.docTitle)
-      this.newdocTitle = ''
+      // console.log(data.id, data.title)
+      this.newtitle = ''
       this.$set(data, 'isEdit', 0)
     },
 
@@ -243,7 +243,7 @@ export default {
     },
 
     nodeclick(node, data, obj) {
-      console.log('点击了：', node.id, node.docTitle)
+      console.log('点击了：', node.id, node.title)
       this.$store.dispatch('appium/changeApiGroupId', node.id)
       console.log(this.$store.getters.apiGroupId)
     }

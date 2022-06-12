@@ -151,28 +151,28 @@ export default {
         })
     },
     handleDragStart(node, ev) {
-      console.log('drag start', node.data.docTitle)
+      console.log('drag start', node.data.title)
     },
     handleDragEnter(draggingNode, dropNode, ev) {
-      console.log('tree drag enter: ', dropNode.data.docTitle)
+      console.log('tree drag enter: ', dropNode.data.title)
     },
     handleDragLeave(draggingNode, dropNode, ev) {
-      console.log('tree drag leave: ', dropNode.data.docTitle)
+      console.log('tree drag leave: ', dropNode.data.title)
     },
     handleDragOver(draggingNode, dropNode, ev) {
-      console.log('tree drag over: ', dropNode.data.docTitle)
+      console.log('tree drag over: ', dropNode.data.title)
     },
     handleDragEnd(draggingNode, dropNode, dropType, ev) {
       console.log(
         'tree drag end: ',
-        dropNode && dropNode.data.docTitle,
+        dropNode && dropNode.data.title,
         dropType
       )
       // 调后端更新
       this.updateApiGroup(this.data)
     },
     handleDrop(draggingNode, dropNode, dropType, ev) {
-      console.log('tree drop: ', dropNode.data.docTitle, dropType)
+      console.log('tree drop: ', dropNode.data.title, dropType)
     },
     allowDrop(draggingNode, dropNode, type) {
       if (dropNode.data.id === 1) {
@@ -188,7 +188,7 @@ export default {
       } else {
         return true
       }
-      // return draggingNode.data.docTitle.indexOf('三级 3-2-2') === -1
+      // return draggingNode.data.title.indexOf('三级 3-2-2') === -1
     },
 
     append(node, data) {
@@ -197,7 +197,7 @@ export default {
       const newChild = {
         id: timestamp,
         isEdit: 0,
-        docTitle: 'T' + timestamp,
+        title: 'T' + timestamp,
         children: []
       }
       if (!data.children) {
@@ -220,28 +220,28 @@ export default {
         'before:',
         data.id,
         // data.parentApiGroupId,
-        data.docTitle,
+        data.title,
         data.isEdit
       )
       this.$set(data, 'isEdit', 1)
-      this.newdocTitle = data.docTitle
+      this.newtitle = data.title
       this.$nextTick(() => {
         this.$refs.input.focus()
       })
-      console.log('after:', data.id, data.docTitle, data.isEdit)
+      console.log('after:', data.id, data.title, data.isEdit)
     },
 
     submitEdit(node, data) {
       // console.log('点击了保存按钮')
-      if (data.docTitle == this.newdocTitle) {
+      if (data.title == this.newtitle) {
         console.log('没有修改')
-        this.newdocTitle = ''
+        this.newtitle = ''
         this.$set(data, 'isEdit', 0)
       } else {
-        this.$set(data, 'docTitle', this.newdocTitle)
-        this.newdocTitle = ''
+        this.$set(data, 'title', this.newtitle)
+        this.newtitle = ''
         this.$set(data, 'isEdit', 0)
-        // console.log('after:', data.id, data.docTitle)
+        // console.log('after:', data.id, data.title)
         // console.log(this.data)
         this.updateApiGroup(this.data)
       }
@@ -249,8 +249,8 @@ export default {
 
     cancelEdit(node, data) {
       // console.log('放弃编辑')
-      // console.log(data.id, data.docTitle)
-      this.newdocTitle = ''
+      // console.log(data.id, data.title)
+      this.newtitle = ''
       this.$set(data, 'isEdit', 0)
     },
 
@@ -266,7 +266,7 @@ export default {
     },
 
     nodeclick(node, data, obj) {
-      console.log('点击了：', node.id, node.docTitle)
+      console.log('点击了：', node.id, node.title)
       this.$store.dispatch('appium/changeApiGroupId', node.id)
       console.log(this.$store.getters.apiGroupId)
     }
