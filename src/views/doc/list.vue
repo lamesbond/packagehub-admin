@@ -43,7 +43,7 @@
       <el-table-column prop="description" label="项目描述" />
       <el-table-column label="发布状态">
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.pubStatus === '0'" type="danger" size="mini">未发布</el-tag>
+          <el-tag v-if="scope.row.pubStatus == '0'" type="danger" size="mini">未发布</el-tag>
           <el-tag v-else type="success" size="mini">已发布</el-tag>
         </template>
       </el-table-column>
@@ -53,8 +53,8 @@
           <el-button type="primary" size="mini">
             <router-link :to="'/doc/detail/' + scope.row.id">查看/编辑</router-link>
           </el-button>
-          <el-button v-if="scope.row.pubStatus == '1'" type="danger" size="mini" @click="handlePublish(scope.row.id, 0)">下架</el-button>
-          <el-button v-else type="primary" size="mini" @click="handlePublish(scope.row.id, 1)">发布</el-button>
+          <el-button v-if="scope.row.pubStatus == '1'" type="danger" size="mini" @click="handlePublish(scope.row, scope.$index, 0)">下架</el-button>
+          <el-button v-else type="primary" size="mini" @click="handlePublish(scope.row, scope.$index, 1)">发布</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -90,9 +90,6 @@ export default {
   data() {
     return {
       tableData: [
-        {
-          pubStatus: ''
-        }
       ], // 列表
       dialogFlag: false,
       formData: {
@@ -166,21 +163,20 @@ export default {
     },
 
     async handleDelRow(row,index) {
+      console.log("开始删节点了")
       await docApi.remove(row.id)
-      await docApi.listChildCategoryById(0).then(response => {
-        this.tableData = response.data.childList
-        this.$set(this.$refs.treeTable.store.states.lazyTreeNodeMap, 0, response.data.childList)
+      console.log("已经提交后台了")
+      await docApi.listChildCategoryById(row.parentId).then(response => {
+        this.$set(this.$refs.treeTable.store.states.lazyTreeNodeMap, row.parentId, response.data.childList)
       })
     },
 
-    handlePublish(id, pubStatus) {
-      console.log("发布的id是" + id)
+    handlePublish(row, index, pubStatus) {
       let data = {}
-      data.id = id
+      this.$set(row, 'pubStatus', pubStatus)
+      data.id = row.id
       data.pubStatus = pubStatus
       docApi.update(data)
-      /// index为索引
-      this.$set(this.tableData[id], pubStatus, '0')
     },
 
     async handleSubmitRow() {
@@ -200,10 +196,9 @@ export default {
       } else if (currentRow.status == 'editRow'){
         console.log("编辑category，父id是：" + data.parentId)
         await docApi.update(data)
-        // this.$set(this.tableData, currentRow.index, this.row)
-        await docApi.listChildCategoryById(this.row.parentId).then(response => {
-          this.$set(this.$refs.treeTable.store.states.lazyTreeNodeMap, this.row.parentId, response.data.childList)
-        })
+        this.$set(this.row, 'title', this.formData.title)
+        this.$set(this.row, 'department', this.formData.department)
+        this.$set(this.row, 'description', this.formData.description)
       } else {
         console.log("你想干嘛？")
       }
