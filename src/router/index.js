@@ -116,6 +116,13 @@ export const constantRoutes = [
         meta: { title: '文档详情' },
         hidden: true
       },
+      {
+        path: 'edit/:id',
+        name: 'coreDocEdit',
+        component: () => import('@/views/doc/edit'),
+        meta: { title: '文档编辑' },
+        hidden: true
+      },
     ]
   },
 

@@ -24,7 +24,7 @@ export default{
 
   getContent(id) {
     return request({
-      url: `/admin/core/doc/show/${id}`,
+      url: `/admin/core/doc/getContent/${id}`,
       method: 'get'
     })
   },

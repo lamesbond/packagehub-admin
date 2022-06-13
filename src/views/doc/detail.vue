@@ -1,4 +1,4 @@
-<template xmlns="http://www.w3.org/1999/html">
+<template >
   <div class="app-container">
     <el-container>
       <el-aside width="300px" style="height:100%; background-color: rgb(238, 241, 246)">
@@ -98,10 +98,10 @@
       <el-container>
         <el-header>
           <el-row type="flex" justify="space-around" style="align-items: center">
-            <el-col :span="5"><span><h4>{{ this.currentTitle }}</h4></span></el-col>
+            <el-col :span="5"><span><h4>{{ this.currentRow.title }}</h4></span></el-col>
             <el-col :span="1"><span><i class="el-icon-search" /></span></el-col>
             <el-col :span="5"><el-button>分享</el-button></el-col>
-            <el-col :span="5"><el-button>编辑</el-button></el-col>
+            <el-col :span="5"><router-link :to="'/doc/edit/' + this.currentRow.id">查看/编辑</router-link></el-col>
             <el-col :span="1">
               <el-dropdown trigger="click">
                 <span class="el-dropdown-link"><i class="el-icon-more-outline" /></span>
@@ -118,7 +118,7 @@
           </el-row>
         </el-header>
         <el-main>
-          <wangEditor :myContent="this.currentContent" />
+          <wangread :currentRow="currentRow"></wangread>
         </el-main>
         <el-footer>这是底部</el-footer>
       </el-container>
@@ -127,17 +127,20 @@
 </template>
 <script>
 import docApi from '@/api/core/doc'
-import wangEditor from '@/components/WangEditor'
+import wangread from '@/components/WangEditor/wangread'
 export default {
   components: {
-    wangEditor
+    wangread
   },
-  data () {
+  data() {
     return {
       menuData: [],
       newtitle: '',
-      currentTitle: '',
-      currentContent: '',
+      currentRow: {
+        title: '',
+        content: '',
+        id: ''
+      },
       defaultProps: {
         children: 'children',
         title: 'title'
@@ -147,26 +150,11 @@ export default {
       parentCategory: ''
     }
   },
-  created () {
+  created() {
     this.listMenuById(this.$route.params.id)
     this.listParentCategoryById(this.$route.params.id)
   },
   methods: {
-    // handleCheckChange(data, checked, indeterminate) {
-    //   console.log(data);
-    //   console.log("idchecked::"+checked);
-    //   console.log(indeterminate);
-    // },
-    // forArr(arr, isExpand) {
-    //   let self = this;
-    //   this.isExpand = !this.isExpand;
-    //   arr.forEach((el) => {
-    //     self.$refs.selectTree.store.nodesMap[el.id].expanded = isExpand;
-    //     if(el.children){
-    //       self.forArr(el.children, isExpand);
-    //     }
-    //   });
-    // },
 
     // 调api获取接口分组数据
     listMenuById(id) {
@@ -174,30 +162,7 @@ export default {
         this.menuData = response.data.docMenu
       })
     },
-    // handleDragStart(node, ev) {
-    //   console.log('drag start', node.data.title)
-    // },
-    // handleDragEnter(draggingNode, dropNode, ev) {
-    //   console.log('tree drag enter: ', dropNode.data.title)
-    // },
-    // handleDragLeave(draggingNode, dropNode, ev) {
-    //   console.log('tree drag leave: ', dropNode.data.title)
-    // },
-    // handleDragOver(draggingNode, dropNode, ev) {
-    //   console.log('tree drag over: ', dropNode.data.title)
-    // },
-    // handleDragEnd(draggingNode, dropNode, dropType, ev) {
-    //   console.log(
-    //     'tree drag end: ',
-    //     "handleDragEnddraggingNode: ",draggingNode,
-    //     "dropNode:",dropNode,
-    //     "标题",dropNode.data.title,
-    //     "dropType",dropType,
-    //     "ev",ev
-    //   )
-    //   // 调后端更新
-    //   this.updateApiGroup(this.data)
-    // },
+
     listParentCategoryById(id) {
       this.parentCategory = docApi.listParentCategoryById(id).then(response => {
         this.parentCategory = response.data.docPath
@@ -205,26 +170,19 @@ export default {
     },
 
     handleDrop(draggingNode, dropNode, dropType, ev) {
-      console.log(
-        'tree drag drop: ',
-        "源节点标题: ",draggingNode.data.title,
-        "目标标题",dropNode.data.title,
-        "dropType",dropType,
-        "ev",ev
-      )
       let updateData = {}
       updateData.id = draggingNode.data.id
       updateData.destId = dropNode.data.id
       updateData.method = dropType
       docApi.update(updateData)
     },
-    allowDrop(draggingNode, dropNode, type) {
+    allowDrop() {
       return true
     },
-    allowDrag(draggingNode) {
+    allowDrag() {
       return true
     },
-    expandOnClickNode(){
+    expandOnClickNode() {
       return true
     },
 
@@ -240,16 +198,12 @@ export default {
       savedata.id = timestamp
       savedata.title = 'T' + timestamp
       if (typeof(data) == "undefined") {
-        console.log("data无值，添加顶级节点")
         savedata.parentId = this.$route.params.id
-        console.log("要增加的数据是：",savedata)
         docApi.save(savedata)
 
         this.menuData.unshift(newRow)
       } else {
-        console.log("data有值，添加子节点")
         savedata.parentId = data.id
-        console.log("要增加的数据是：",savedata)
         docApi.save(savedata)
 
         if (!data.children) {
@@ -257,8 +211,6 @@ export default {
         }
         data.children.unshift(newRow)
       }
-      // var pid = data.parentApiGroupId + ':' + data.id
-
     },
 
     remove(node, data) {
@@ -270,19 +222,11 @@ export default {
     },
 
     edit(node, data) {
-      console.log(
-        'before:',
-        data.id,
-        // data.parentApiGroupId,
-        data.title,
-        data.isEdit
-      )
       this.$set(data, 'isEdit', 1)
       this.newtitle = data.title
       this.$nextTick(() => {
         this.$refs.input.focus()
       })
-      console.log('after:', data.id, data.title, data.isEdit)
     },
 
     submitEdit(node, data) {
@@ -295,38 +239,22 @@ export default {
         this.$set(data, 'title', this.newtitle)
         this.newtitle = ''
         this.$set(data, 'isEdit', 0)
-        // console.log('after:', data.id, data.title)
-        console.log("修改过后的data：",data.id, data.title)
+
         docApi.update(data)
       }
     },
 
     cancelEdit(node, data) {
-      // console.log('放弃编辑')
-      // console.log(data.id, data.title)
       this.newtitle = ''
       this.$set(data, 'isEdit', 0)
     },
 
-    updateDoc(data) {
-      console.log(data)
-      docApi.update(data)
-        .then(response => {
-          console.log(response)
-        })
-        .catch(err => {
-          console.log(err)
-        })
-    },
-
     nodeclick(node, data, obj) {
-      console.log('点击了：', node.id, node.title)
-      this.currentTitle = node.title
-      this.currentContent = node.content
-      // this.$store.dispatch('appium/changeApiGroupId', node.id)
-      console.log(this.currentContent)
-    },
-  },
+      this.currentRow.title = node.title
+      this.currentRow.content = node.content
+      this.currentRow.id = node.id
+    }
+  }
 }
 </script>
 
@@ -348,12 +276,7 @@ export default {
 /deep/ .el-input__inner {
   height: 20px;
 }
-.el-row {
-  margin-bottom: 20px;
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
+
 .el-col {
   border-radius: 4px;
 }
