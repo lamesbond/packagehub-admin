@@ -50,7 +50,7 @@
 
       <el-table-column label="操作" width="350" align="center">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini">
+          <el-button v-if="scope.row.isDoc == '1'" type="primary" size="mini">
             <router-link :to="'/doc/detail/' + scope.row.id">查看/编辑</router-link>
           </el-button>
           <el-button v-if="scope.row.pubStatus == '1'" type="danger" size="mini" @click="handlePublish(scope.row, scope.$index, 0)">下架</el-button>
