@@ -130,8 +130,12 @@ export default {
       //   this.$refs.cimsDictTable.toggleRowExpansion(row, true);
       //
       // })
-
-      this.printList(row, newRow)
+      this.$set(
+        this.$refs.cimsDictTable.store.states.lazyTreeNodeMap,
+        newRow.parentId,
+        newRow
+      )
+      // this.printList(row, newRow)
 
       // console.log("rowrr:" + row.children + row.docTitle)
       // this.expands.push("2")
