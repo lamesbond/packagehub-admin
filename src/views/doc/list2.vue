@@ -24,6 +24,7 @@
       >
         <el-table-column label="条件" min-width="400px">
           <template slot-scope="scope">
+
             <!-- 这部分是设置虚线逻辑 -->
             <template v-for="(item,l) in scope.row.level">
               <!-- 根据delItemFlag判断 是true或者'true'则对应的竖虚线是多余的 需要删除 -->
@@ -33,17 +34,53 @@
             </template>
             <!-- 这个是设置每个层级最后的那个节点 多加一个竖线 覆盖多余的行高虚线 -->
             <span v-if="scope.row.moreOneDash" class="more_dash" :style="{'left':`${(scope.row.level)*16 - 6}`+'px'}"></span>
+
             <span class="showName">{{ scope.row.conditionName }}</span>
             <i v-if="scope.row.farOrSon=='first'|| scope.row.farOrSon=='middle'" style="font-size:18px;margin-left:5px;color:#00ff00;cursor: pointer;" class="el-icon-folder-add" @click="addOneRow(scope.row,scope.$index,'middle')"></i>
             <i v-if="scope.row.farOrSon=='first'|| scope.row.farOrSon=='middle'" style="font-size:18px;margin-left:5px;color:#00ff00;cursor: pointer;" class="el-icon-document-add" @click="addOneRow(scope.row,scope.$index,'last')"></i>
             <i v-if="scope.row.farOrSon=='middle'|| scope.row.farOrSon=='last'" style="font-size:18px;margin-left:5px;color:#f1ff;cursor: pointer;" class="el-icon-edit" @click="editRow(scope.row,scope.$index)"></i>
             <i v-if="scope.row.farOrSon=='middle'|| scope.row.farOrSon=='last'" style="font-size:18px;margin-left:5px;color:#1890FF;cursor: pointer;" type="primary" class="el-icon-close" @click="delRow(scope.row,scope.$index)"></i>
+
           </template>
         </el-table-column>
+        <el-table-column label="交强险（%）">
+          <el-table-column label="上游" width="70px">
+            <template slot-scope="scope">
+              <el-input v-if="scope.row.strObj" v-model="scope.row.strObj.str1" placeholder @input="scope.row.strObj.str1=/^d+.?d{0,2}$/.test(scope.row.strObj.str1)||scope.row.strObj.str1 == '' ? scope.row.strObj.str1 : scope.row.strObj.str1=''"></el-input>
+            </template>
+          </el-table-column>
+          <el-table-column label="基数" width="70px">
+            <template slot-scope="scope">
+              <el-input v-if="scope.row.strObj" v-model="scope.row.strObj.str2" placeholder @input="scope.row.strObj.str2=/^d+.?d{0,2}$/.test(scope.row.strObj.str2)||scope.row.strObj.str2 == '' ? scope.row.strObj.str2 : scope.row.strObj.str2=''"></el-input>
+            </template>
+          </el-table-column>
+        </el-table-column>
 
-        <el-table-column label="部门" width="140px"></el-table-column>
-        <el-table-column label="详情" width="140px"></el-table-column>
-        <el-table-column label="发布状态"></el-table-column>
+        <el-table-column label="车船险（%）">
+          <el-table-column label="上游" width="70px">
+            <template slot-scope="scope">
+              <el-input v-if="scope.row.strObj" v-model="scope.row.strObj.str3" placeholder @input="scope.row.strObj.str3=/^d+.?d{0,2}$/.test(scope.row.strObj.str3)||scope.row.strObj.str3 == '' ? scope.row.strObj.str3 : scope.row.strObj.str3=''"></el-input>
+            </template>
+          </el-table-column>
+          <el-table-column label="基数" width="70px">
+            <template slot-scope="scope">
+              <el-input v-if="scope.row.strObj" v-model="scope.row.strObj.str4" placeholder @input="scope.row.strObj.str4=/^d+.?d{0,2}$/.test(scope.row.strObj.str4)||scope.row.strObj.str4 == '' ? scope.row.strObj.str4 : scope.row.strObj.str4=''"></el-input>
+            </template>
+          </el-table-column>
+        </el-table-column>
+
+        <el-table-column label="商业险（%）">
+          <el-table-column label="上游" width="70px">
+            <template slot-scope="scope">
+              <el-input v-if="scope.row.strObj" v-model="scope.row.strObj.str5" placeholder @input="scope.row.strObj.str5=/^d+.?d{0,2}$/.test(scope.row.strObj.str5)||scope.row.strObj.str5 == '' ? scope.row.strObj.str5 : scope.row.strObj.str5=''"></el-input>
+            </template>
+          </el-table-column>
+          <el-table-column label="基数" width="70px">
+            <template slot-scope="scope">
+              <el-input v-if="scope.row.strObj" v-model="scope.row.strObj.str6" placeholder @input="scope.row.strObj.str6=/^d+.?d{0,2}$/.test(scope.row.strObj.str6)||scope.row.strObj.str6 == '' ? scope.row.strObj.str6 : scope.row.strObj.str6=''"></el-input>
+            </template>
+          </el-table-column>
+        </el-table-column>
 
         <el-table-column label="操作" width="200px">
           <template slot-scope="scope">
@@ -58,19 +95,30 @@
 
       <!-- 编辑回显的弹框  其实新增也可以用这个弹框但是没写 -->
       <el-dialog title="提示" class="dia_box" :visible.sync="dialogFlag" width="500px">
+
         <el-form :model="formData">
-          <el-form-item label="文档标题:" label-width="128px">
+          <el-form-item label="条件名称:" label-width="128px">
             <el-input v-model="formData.conditionName" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item v-if="formData.strObj" label="部门" label-width="128px">
+          <el-form-item v-if="formData.strObj" label="交强险（%）上游:" label-width="128px">
             <el-input v-model="formData.strObj.str1" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item v-if="formData.strObj" label="详情" label-width="128px">
+          <el-form-item v-if="formData.strObj" label="交强险（%）基数:" label-width="128px">
             <el-input v-model="formData.strObj.str2" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item v-if="formData.strObj" label="发布状态" label-width="128px">
+          <el-form-item v-if="formData.strObj" label="车船险（%）上游:" label-width="128px">
             <el-input v-model="formData.strObj.str3" autocomplete="off"></el-input>
           </el-form-item>
+          <el-form-item v-if="formData.strObj" label="车船险（%）基数:" label-width="128px">
+            <el-input v-model="formData.strObj.str4" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item v-if="formData.strObj" label="商业险（%）上游:" label-width="128px">
+            <el-input v-model="formData.strObj.str5" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item v-if="formData.strObj" label="商业险（%）基数:" label-width="128px">
+            <el-input v-model="formData.strObj.str6" autocomplete="off"></el-input>
+          </el-form-item>
+
         </el-form>
 
         <span slot="footer" class="dialog-footer">
@@ -79,7 +127,12 @@
         </span>
       </el-dialog>
 
+      <el-radio v-model="addOrEdit" :label="false">无数据列表</el-radio>
+      <el-radio v-model="addOrEdit" :label="true">有数据列表</el-radio>
+
+      <el-button @click="lookData">点击打印树表数据</el-button>
     </div>
+
   </div>
 </template>
 
@@ -88,6 +141,7 @@ export default {
   name: 'TreeTable',
   data () {
     return {
+      addOrEdit: true, // false无数据列表  true是有数据列表
       ref: 'cimsDictTable',
       tableData: [], // 这个是真正的展示树状列表
       selectAddLast: null, // 点击树表的添加  middle是添加中间  last 是添加最后末梢
@@ -117,8 +171,28 @@ export default {
       }
     }
   },
-  created() {
-    this.initData()
+  watch: {
+    addOrEdit (val) {
+      if (!this.addOrEdit) {
+        // 打开一个全新的列表
+        this.getNewData()
+      } else {
+        // 根据id找到某个数据列表 回显 假设id是123
+        this.getIdDate(123)
+      }
+    }
+
+  },
+  mounted () {
+    if (!this.addOrEdit) {
+      // 打开一个全新的列表
+      this.getNewData()
+    } else {
+      // 根据id找到某个数据列表 回显 假设id是123
+      this.getIdDate(123)
+    }
+  },
+  beforeMount () {
   },
   methods: {
     getNewData () {
@@ -245,6 +319,7 @@ export default {
             element['level'] = levelNum
           } else {
             element['level'] = levelNum
+
             setLevel(element.childNode, levelNum + 1)
           }
         }
@@ -374,6 +449,10 @@ export default {
       set_lastMoreDash(this.tableData[0].childNode)
 
       console.log('处理虚线', this.tableData)
+    },
+
+    lookData () {
+      console.log('tableData--', this.tableData)
     },
 
     Menuclose () {

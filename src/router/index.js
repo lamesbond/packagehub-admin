@@ -110,9 +110,9 @@ export const constantRoutes = [
         meta: { title: '文档列表' }
       },
       {
-        path: 'liebiao',
-        name: 'coreDocLiebiao',
-        component: () => import('@/views/doc/liebiao'),
+        path: 'list2',
+        name: 'coreDocList2',
+        component: () => import('@/views/doc/list2'),
         meta: { title: '文档列表2' }
       },
       {

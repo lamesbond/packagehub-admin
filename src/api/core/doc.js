@@ -1,9 +1,16 @@
 import request from '@/utils/request'
 
 export default{
-  listChildProjectById(id) {
+  listChildCategoryById(id) {
     return request({
-      url: `/admin/core/doc/listChildProjectById/${id}`,
+      url: `/admin/core/doc/listChildCategoryById/${id}`,
+      method: 'get'
+    })
+  },
+
+  listParentCategoryById(id) {
+    return request({
+      url: `/admin/core/doc/listParentCategoryById/${id}`,
       method: 'get'
     })
   },
@@ -15,42 +22,33 @@ export default{
     })
   },
 
-  show(id) {
+  getContent(id) {
     return request({
       url: `/admin/core/doc/show/${id}`,
       method: 'get'
     })
   },
 
-  updateDocInfo(data) {
-    return request({
-      url: `/admin/core/doc/updateDoc`,
-      method: 'post',
-      data: data
-    })
-  },
-
-  updateDocPosition(data) {
-    return request({
-      url: `/admin/core/doc/updateDocPosition`,
-      method: 'post',
-      data: data
-    })
-  },
-
   save(data) {
     return request({
-      url: `/admin/core/doc/saveDoc`,
+      url: `/admin/core/doc/save`,
       method: 'post',
       data: data
     })
   },
 
-  removeById(id) {
+  remove(id) {
     return request({
-      url: `/admin/core/doc/removeDoc/` + id,
+      url: `/admin/core/doc/remove/` + id,
       method: 'delete'
     })
   },
 
+  update(data) {
+    return request({
+      url: `/admin/core/doc/update`,
+      method: 'post',
+      data: data
+    })
+  }
 }
