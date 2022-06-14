@@ -39,9 +39,6 @@ export default Vue.extend({
             this.html = response.data.doc.content
           })
       }, 1500)
-      // docApi.getOne(id).then(response => {
-      //   this.html = response.data.docContent
-      // })
     }
 
   }

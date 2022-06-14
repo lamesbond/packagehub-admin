@@ -101,7 +101,7 @@
             <el-col :span="5"><span><h4>{{ this.currentRow.title }}</h4></span></el-col>
             <el-col :span="1"><span><i class="el-icon-search" /></span></el-col>
             <el-col :span="5"><el-button>分享</el-button></el-col>
-            <el-col :span="5"><router-link :to="'/doc/edit/' + this.currentRow.id">查看/编辑</router-link></el-col>
+            <el-col :span="5"><el-button @click='handleEdit'>编辑</el-button></el-col>
             <el-col :span="1">
               <el-dropdown trigger="click">
                 <span class="el-dropdown-link"><i class="el-icon-more-outline" /></span>
@@ -253,6 +253,11 @@ export default {
       this.currentRow.content = node.content
       this.currentRow.id = node.id
       this.$refs.wangread.getOne(node.id)
+    },
+
+    handleEdit() {
+      this.$store.dispatch("doc/setversionid", this.$route.params.id)
+      this.$router.push('/doc/edit/' + this.currentRow.id)
     }
   }
 }
