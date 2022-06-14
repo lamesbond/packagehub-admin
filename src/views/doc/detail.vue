@@ -118,20 +118,19 @@
           </el-row>
         </el-header>
         <el-main>
-          <wangread :currentRow="currentRow"></wangread>
+          <wangread ref="wangread"></wangread>
         </el-main>
         <el-footer>这是底部</el-footer>
       </el-container>
     </el-container>
   </div>
 </template>
+
 <script>
 import docApi from '@/api/core/doc'
 import wangread from '@/components/WangEditor/wangread'
 export default {
-  components: {
-    wangread
-  },
+  components: { wangread },
   data() {
     return {
       menuData: [],
@@ -253,6 +252,7 @@ export default {
       this.currentRow.title = node.title
       this.currentRow.content = node.content
       this.currentRow.id = node.id
+      this.$refs.wangread.getOne(node.id)
     }
   }
 }

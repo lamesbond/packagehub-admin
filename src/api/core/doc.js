@@ -22,9 +22,9 @@ export default{
     })
   },
 
-  getContent(id) {
+  getOne(id) {
     return request({
-      url: `/admin/core/doc/getContent/${id}`,
+      url: `/admin/core/doc/getOne/${id}`,
       method: 'get'
     })
   },

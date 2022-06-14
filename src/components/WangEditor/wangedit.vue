@@ -1,7 +1,5 @@
 <template>
   <div>
-    <button @click="insertText">insert text</button>
-    <button @click="saveText">save text</button>
     <div style="border: 1px solid #ccc;">
       <Toolbar
         style="border-bottom: 1px solid #ccc"
@@ -15,11 +13,7 @@
         :defaultConfig="editorConfig"
         :mode="mode"
         @onCreated="onCreated"
-        @onChange="onChange"
         @onDestroyed="onDestroyed"
-        @onMaxLength="onMaxLength"
-        @onFocus="onFocus"
-        @onBlur="onBlur"
         @customPaste="customPaste"
       />
     </div>
@@ -37,25 +31,23 @@ export default Vue.extend({
   data() {
     return {
       editor: null,
-      html: '<p>hello</p>',
+      html: '<p></p>',
       toolbarConfig: { },
-      editorConfig: { placeholder: '请输入内容...' },
+      editorConfig: {
+        placeholder: '请输入内容...',
+        MENU_CONF: 'uploadImage',
+      },
       mode: 'default', // or 'simple'
     }
   },
-  props: ['myContent'],
   methods: {
     onCreated(editor) {
       this.editor = Object.seal(editor)
-      console.log('onCreated', editor)
     },
-    onChange(editor) {  },
-    onDestroyed(editor) { console.log('onDestroyed', editor) },
-    onMaxLength(editor) { console.log('onMaxLength', editor) },
-    onFocus(editor) { console.log('onFocus', editor) },
-    onBlur(editor) { console.log('onBlur', editor) },
+    onDestroyed(editor) {
+      editor.destroyed
+    },
     customPaste(editor, event, callback) {
-      console.log('ClipboardEvent 粘贴事件对象', event)
       // const html = event.clipboardData.getData('text/html') // 获取粘贴的 html
       const text = event.clipboardData.getData('text/plain') // 获取粘贴的纯文本
       // const rtf = event.clipboardData.getData('text/rtf') // 获取 rtf 数据（如从 word wsp 复制粘贴）
@@ -70,33 +62,21 @@ export default Vue.extend({
       // 返回 true ，继续默认的粘贴行为
       // callback(true)
     },
-    insertText() {
-      const editor = this.editor // 获取 editor 实例
-      if (editor == null) return
-
-      // 调用 editor 属性和 API
-      editor.insertText('一段文字')
-      console.log(editor.children)
-    },
     saveText() {
       let data = {}
-      data.id = '1655109883066'
+      data.id = this.$route.params.id
       data.content = this.editor.getHtml()
-      console.log("data是：" + data.content)
       docApi.update(data)
     },
   },
   mounted() {
     // 模拟 ajax 请求，异步渲染编辑器
-    setTimeout(docApi.getContent(1655109883066).then(response => {
-      this.html = response.data.docContent
-    }), 1500)
+    setTimeout( () => {
+      docApi.getOne(this.$route.params.id).then(response => {
+        this.html = response.data.doc.content
+      })
+    }, 1500)
   },
-  beforeDestroy() {
-    const editor = this.editor
-    if (editor == null) return
-    editor.destroy() // 组件销毁时，及时销毁编辑器
-  }
 })
 </script>
 

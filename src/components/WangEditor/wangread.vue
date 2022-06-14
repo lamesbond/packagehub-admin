@@ -32,17 +32,17 @@ export default Vue.extend({
     }
   },
   props: ['currentRow'],
-  watch: {
-    currentRow: {
-      deep: true,
-      handler(newVal) {
-        setTimeout(docApi.getContent(newVal.id).then(response => {
-          this.html = response.data.docContent
-        }), 1500)
-      }
-    }
-  },
   methods: {
+    getOne(id) {
+      setTimeout(() => {
+        docApi.getOne(id).then(response => {
+            this.html = response.data.doc.content
+          })
+      }, 1500)
+      // docApi.getOne(id).then(response => {
+      //   this.html = response.data.docContent
+      // })
+    }
 
   }
 })
