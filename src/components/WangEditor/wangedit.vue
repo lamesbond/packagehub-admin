@@ -64,7 +64,7 @@ export default Vue.extend({
     },
     saveText() {
       let data = {}
-      data.id = this.$route.params.id
+      data.id = this.$route.params.menuId
       data.content = this.editor.getHtml()
       docApi.update(data)
     },
@@ -72,7 +72,7 @@ export default Vue.extend({
   mounted() {
     // 模拟 ajax 请求，异步渲染编辑器
     setTimeout( () => {
-      docApi.getOne(this.$route.params.id).then(response => {
+      docApi.getOne(this.$route.params.menuId).then(response => {
         this.html = response.data.doc.content
       })
     }, 1500)

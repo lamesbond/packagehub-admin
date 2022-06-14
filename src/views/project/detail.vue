@@ -206,7 +206,7 @@ export default {
   },
 
   created() {
-    if (this.$route.params.id) {
+    if (this.$route.params.versionId) {
       this.fetchDataById()
     }
   },
@@ -214,7 +214,7 @@ export default {
   methods: {
     // 根据id查询记录
     fetchDataById() {
-      borrowerApi.show(this.$route.params.id).then(response => {
+      borrowerApi.show(this.$route.params.versionId).then(response => {
         this.borrower = response.data.borrowerDetailVO
       })
     },
@@ -225,7 +225,7 @@ export default {
 
     approvalSubmit() {
       this.saveBtnDisabled = true
-      this.approvalForm.borrowerId = this.$route.params.id
+      this.approvalForm.borrowerId = this.$route.params.versionId
       borrowerApi.approval(this.approvalForm).then(response => {
         this.$message.success(response.message)
         this.$router.push({path: '/core/project/list' })

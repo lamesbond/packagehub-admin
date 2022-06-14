@@ -50,6 +50,7 @@
               ref="selectTree"
               draggable
               @node-click="nodeclick"
+              :current-node-key="this.currentRow.id"
               :check-on-click-node=true
               :allow-drop="allowDrop"
               :allow-drag="allowDrag">
@@ -150,22 +151,12 @@ export default {
     }
   },
   created() {
-    this.listMenuById(this.$route.params.id)
-    this.listParentCategoryById(this.$route.params.id)
+    this.currentRow.id = this.$route.params.menuId
   },
   methods: {
-
     // 调api获取接口分组数据
-    listMenuById(id) {
-      docApi.listMenuById(id).then(response => {
-        this.menuData = response.data.docMenu
-      })
-    },
-
-    listParentCategoryById(id) {
-      this.parentCategory = docApi.listParentCategoryById(id).then(response => {
-        this.parentCategory = response.data.docPath
-      })
+    getCurrentNodeKey() {
+      return this.$route.params.menuId
     },
 
     handleDrop(draggingNode, dropNode, dropType, ev) {
@@ -197,7 +188,7 @@ export default {
       savedata.id = timestamp
       savedata.title = 'T' + timestamp
       if (typeof(data) == "undefined") {
-        savedata.parentId = this.$route.params.id
+        savedata.parentId = this.$route.params.versionId
         docApi.save(savedata)
 
         this.menuData.unshift(newRow)
@@ -253,12 +244,22 @@ export default {
       this.currentRow.content = node.content
       this.currentRow.id = node.id
       this.$refs.wangread.getOne(node.id)
+      this.$router.push('/doc/detail/' + this.$route.params.versionId + '/' + node.id)
     },
 
     handleEdit() {
-      this.$store.dispatch("doc/setversionid", this.$route.params.id)
-      this.$router.push('/doc/edit/' + this.currentRow.id)
+      this.$store.dispatch("doc/setversionid", this.$route.params.versionId)
+      this.$router.push('/doc/edit/' + this.$route.params.versionId + '/' + this.currentRow.id)
     }
+  },
+  mounted() {
+    docApi.listMenuById(this.$route.params.versionId).then(response => {
+      this.menuData = response.data.docMenu
+    })
+    docApi.listParentCategoryById(this.$route.params.versionId).then(response => {
+      this.parentCategory = response.data.docPath
+    })
+    this.$refs.wangread.getOne(this.$route.params.menuId)
   }
 }
 </script>

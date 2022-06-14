@@ -36,8 +36,8 @@ export default Vue.extend({
     getOne(id) {
       setTimeout(() => {
         docApi.getOne(id).then(response => {
-            this.html = response.data.doc.content
-          })
+          this.html = response.data.doc.content
+        })
       }, 1500)
     }
 

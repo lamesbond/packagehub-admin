@@ -104,20 +104,27 @@ export const constantRoutes = [
     alwaysShow: true,
     children: [
       {
-        path: 'list',
-        name: 'coreDocList',
-        component: () => import('@/views/doc/list'),
-        meta: { title: '文档列表' }
+        path: 'category',
+        name: 'coreDocCategoryList',
+        component: () => import('@/views/doc/categoryList'),
+        meta: { title: '分类列表' }
       },
       {
-        path: 'detail/:id',
+        path: 'menu/:versionId',
+        name: 'coreDocMenuList',
+        component: () => import('@/views/doc/menuList'),
+        meta: { title: '目录列表' },
+        hidden: true
+      },
+      {
+        path: 'detail/:versionId/:menuId',
         name: 'coreDocDetail',
         component: () => import('@/views/doc/detail'),
         meta: { title: '文档详情' },
         hidden: true
       },
       {
-        path: 'edit/:id',
+        path: 'edit/:versionId/:menuId',
         name: 'coreDocEdit',
         component: () => import('@/views/doc/edit'),
         meta: { title: '文档编辑' },
