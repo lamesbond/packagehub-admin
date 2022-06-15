@@ -1,34 +1,6 @@
 import request from '@/utils/request'
 
 export default{
-  listChildCategoryById(id) {
-    return request({
-      url: `/admin/core/project/listChildCategoryById/${id}`,
-      method: 'get'
-    })
-  },
-
-  listParentCategoryById(id) {
-    return request({
-      url: `/admin/core/project/listParentCategoryById/${id}`,
-      method: 'get'
-    })
-  },
-
-  listMenuById(id) {
-    return request({
-      url: `/admin/core/project/listMenuById/${id}`,
-      method: 'get'
-    })
-  },
-
-  getOne(id) {
-    return request({
-      url: `/admin/core/project/getOne/${id}`,
-      method: 'get'
-    })
-  },
-
   save(data) {
     return request({
       url: `/admin/core/project/save`,
@@ -44,11 +16,10 @@ export default{
     })
   },
 
-  update(data) {
+  removeFile(url) {
     return request({
-      url: `/admin/core/project/update`,
-      method: 'post',
-      data: data
+      url: `/admin/oss/file/remove?url=` + url,
+      method: 'delete'
     })
-  }
+  },
 }

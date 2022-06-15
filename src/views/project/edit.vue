@@ -12,11 +12,14 @@
 
   <el-upload
     class="upload-demo"
-    action="https://jsonplaceholder.typicode.com/posts/"
+    action="http://localhost/admin/oss/file/upload"
+    :before-upload="beforeUpload"
+    :data="uploadParam"
     :on-change="handleChange"
+    :on-remove="handleRemove"
+    :on-success="handleSuccess"
     :file-list="fileList">
     <el-button size="small" type="primary">点击上传</el-button>
-    <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
   </el-upload>
 </div>
 </template>
@@ -28,13 +31,10 @@ export default {
   name: "",
   data () {
     return {
-      fileList: [{
-        name: 'food.jpeg',
-        url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'
-      }, {
-        name: 'food2.jpeg',
-        url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'
-      }],
+      uploadParam: {
+        module: "ningning"
+      },
+      fileList: [],
       textarea1: '',
       textarea2: '',
       release: {
@@ -42,9 +42,31 @@ export default {
     }
   },
   methods: {
+    beforeUpload(file, fileList) {
+      this.uploadParam = { module: this.$route.params.id }; //上传携带的参数名
+    },
     handleChange(file, fileList) {
-      this.fileList = fileList.slice(-3);
-    }
+      // console.log("file on change: " + file.name)
+      // console.log("fileList on change: " + fileList)
+      // this.fileList = fileList.slice(-3);
+    },
+    handleRemove(file, fileList) {
+      console.log("wenjain deleted:" + "  " + file.name + "  " + file.url + "  " + file.id)
+      projectApi.removeFile(file.url)
+      projectApi.remove(file.id)
+    },
+    handleSuccess(res, file, fileList) {
+      var timestamp = new Date().getTime()
+      file.id = timestamp
+      file.url = res.data.url
+      let newFile = {}
+      newFile.id = timestamp
+      newFile.parentId = this.$route.params.id
+      newFile.name = file.name
+      newFile.type = "file"
+      newFile.url = res.data.url
+      projectApi.save(newFile)
+    },
   }
 }
 </script>
