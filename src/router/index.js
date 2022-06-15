@@ -81,16 +81,16 @@ export const constantRoutes = [
     alwaysShow: true,
     children: [
       {
-        path: 'list',
+        path: 'category',
         name: 'coreProjectList',
-        component: () => import('@/views/project/list'),
+        component: () => import('@/views/project/categoryList'),
         meta: { title: '项目列表' }
       },
       {
-        path: 'detail/:id',
+        path: 'edit/:id',
         name: 'coreProjectDetail',
-        component: () => import('@/views/project/detail'),
-        meta: { title: '项目详情' },
+        component: () => import('@/views/project/edit'),
+        meta: { title: '发行编辑' },
         hidden: true
       }
     ]
