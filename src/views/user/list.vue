@@ -1,171 +1,186 @@
 <template>
   <div class="app-container">
-    <!--查询表单-->
-    <el-form :inline="true" class="demo-form-inline">
-      <el-form-item label="邮箱">
-        <el-input v-model="searchObj.mobile" placeholder="邮箱" />
-      </el-form-item>
-
-      <el-form-item label="用户类型">
-        <el-select v-model="searchObj.userType" placeholder="请选择" clearable>
-          <el-option label="次级管理" value="1" />
-          <el-option label="客户" value="2" />
-        </el-select>
-      </el-form-item>
-
-      <el-form-item label="用户状态">
-        <el-select v-model="searchObj.status" placeholder="请选择" clearable>
-          <el-option label="正常" value="1" />
-          <el-option label="锁定" value="0" />
-        </el-select>
-      </el-form-item>
-
-      <el-button type="primary" icon="el-icon-search" @click="fetchData()">
-        查询
-      </el-button>
-      <el-button type="default" @click="resetData()">清空</el-button>
-    </el-form>
-
+    <el-button type="primary" size="mini" @click="handleAddUser">添加用户</el-button>
     <!-- 列表 -->
-    <el-table :data="list" border stripe>
-      <el-table-column label="#" width="50">
-        <template slot-scope="scope">
-          {{ (page - 1) * limit + scope.$index + 1 }}
-        </template>
-      </el-table-column>
-
-      <el-table-column label="用户类型" width="100">
-        <template slot-scope="scope">
-          <el-tag v-if="scope.row.userType === 1" type="success" size="mini">投资人</el-tag>
-          <el-tag v-else-if="scope.row.userType === 2" type="warning" size="mini">借款人</el-tag>
-        </template>
-      </el-table-column>
+    <el-table
+      ref="treeTable"
+      :data="tableData"
+      row-key="id"
+      border
+      stripe
+      size="mini"
+      class="data-table"
+      tooltip-effect="dark"
+      header-row-class-name="data-table-header"
+      :show-overflow-tooltip="true"
+    >
+      <el-table-column type="index" label="序号" width="60" align="center" />
+      <el-table-column prop='name' label="用户名" width="260"></el-table-column>
       <el-table-column prop="email" label="邮箱" />
-      <el-table-column prop="name" label="用户姓名" />
-      <el-table-column prop="userType" label="用户类型" />
-      <el-table-column prop="createTime" label="注册时间" width="100" />
-      <el-table-column label="用户状态" width="90">
-        <template slot-scope="scope">
-          <el-tag v-if="scope.row.status === 0" type="danger" size="mini">锁定</el-tag>
-          <el-tag v-else type="success" size="mini">正常</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" width="200">
-        <template slot-scope="scope">
-          <el-button
-            v-if="scope.row.status == 1"
-            type="primary"
-            size="mini"
-            @click="lock(scope.row.id, 0)"
-          >
-            锁定
-          </el-button>
-          <el-button
-            v-else
-            type="danger"
-            size="mini"
-            @click="lock(scope.row.id, 1)"
-          >
-            解锁
-          </el-button>
-          <el-button
-            type="primary"
-            size="mini"
-            @click="showLoginRecord(scope.row.id)"
-          >
-            登录日志
-          </el-button>
-        </template>
-      </el-table-column>
+      <el-table-column prop="department" label="部门" />
+      <el-table-column prop="role" label="角色" />
+      <el-table-column prop="status" label="状态" />
 
+      <el-table-column label="操作" width="350" align="center">
+        <template slot-scope="scope">
+          <el-button type="primary" size="mini">编辑</el-button>
+          <el-button >发布</el-button>
+        </template>
+      </el-table-column>
     </el-table>
 
-    <!-- 分页组件 -->
-    <el-pagination
-      :current-page="page"
-      :total="total"
-      :page-size="limit"
-      :page-sizes="[10, 20]"
-      style="padding: 30px 0; "
-      layout="total, sizes, prev, pager, next, jumper"
-      @size-change="changePageSize"
-      @current-change="changeCurrentPage"
-    />
-    <!-- 用户登录日志 -->
-    <el-dialog title="用户登录日志" :visible.sync="dialogTableVisible">
-      <el-table :data="loginRecordList" border stripe>
-        <el-table-column type="index" />
-        <el-table-column prop="ip" label="IP" />
-        <el-table-column prop="createTime" label="登录时间" />
-      </el-table>
+    <div class="block">
+      <span class="demonstration">完整功能</span>
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[10, 20, 50]"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="pageTotal">
+      </el-pagination>
+    </div>
+
+    <!-- 编辑回显的弹框  其实新增也可以用这个弹框但是没写 -->
+    <el-dialog title="用户表单" class="dia_box" :visible.sync="dialogFlag" width="500px">
+
+      <el-form :model="formData">
+        <el-form-item label="用户名" label-width="128px">
+          <el-input v-model="formData.name" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="部门" label-width="128px">
+          <el-input v-model="formData.department" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="描述" label-width="128px">
+          <el-input v-model="formData.description" autocomplete="on"></el-input>
+        </el-form-item>
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogFlag = false">取 消</el-button>
+          <el-button type="primary" @click="handleSubmitRow">确 定</el-button>
+        </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import userInfoApi from '@/api/core/user-info'
+import userApi from '@/api/core/user'
+
 export default {
   name: "",
   data() {
     return {
-      list: null, // 数据列表
-      total: 0, // 数据库中的总记录数
-      page: 1, // 默认页码
-      limit: 10, // 每页记录数
-      searchObj: {}, // 查询条件
-      loginRecordList: [], //会员登录日志
-      dialogTableVisible: false //对话框是否显示
+      currentPage: 2,
+      pageTotal: null,
+      tableData: [
+      ], // 列表
+      dialogFlag: false,
+      formData: {
+        id: null,
+        parentId: '0',
+        department: '',
+        description: '',
+        type: '0',
+        pubStatus: '0'
+      },
+      currentRow: {
+        status: '',
+        index: ''
+      },
+      row: {}
+      // ref: 'treeTable',
+      // treeTable: [],
     }
   },
+
   created() {
-    this.fetchData()
+    this.fetchData(1,10)
   },
 
   methods: {
-    fetchData() {
-      userInfoApi.getPageList(this.page, this.limit, this.searchObj)
-        .then(response => {
-          this.list = response.data.pageModel.records
-          this.total = response.data.pageModel.total
+
+    fetchData(current,size) {
+      userApi.getPage(current,size).then(response => {
+        this.tableData = response.data.User.records
+        this.pageTotal = response.data.User.total
+      })
+    },
+
+    handleAddUser(){
+      this.formData = {}
+      var timestamp = new Date().getTime()
+      this.formData.id = timestamp
+      this.formData.parentId = '0'
+      this.formData.pubStatus = '0'
+      this.formData.type = 'project'
+
+      this.currentRow.status = 'addProject'
+      this.dialogFlag = true
+    },
+
+    handleEditRow(row, index) {
+      this.formData = JSON.parse(JSON.stringify(row))
+      this.row = row
+      this.currentRow.status = 'editRow'
+      this.currentRow.index = index
+      this.dialogFlag = true
+    },
+
+    async handleDelRow(row,index) {
+      console.log("开始删节点了")
+      await userApi.remove(row.id)
+      console.log("已经提交后台了")
+      await userApi.listChildCategoryById(row.parentId).then(response => {
+        this.$set(this.$refs.treeTable.store.states.lazyTreeNodeMap, row.parentId, response.data.childList)
+      })
+    },
+
+    handlePublish(row, index, pubStatus) {
+      let data = {}
+      this.$set(row, 'pubStatus', pubStatus)
+      data.id = row.id
+      data.pubStatus = pubStatus
+      userApi.update(data)
+    },
+
+    async handleSubmitRow() {
+      let data = this.formData
+      let currentRow = this.currentRow
+      if (currentRow.status == 'addProject') {
+        console.log("新增project，父id是：" + '0')
+        await userApi.save(data)
+        this.tableData.unshift(data)
+      } else if (currentRow.status == 'addRow'){
+        console.log("新增category，父id是：" + data.parentId)
+        await userApi.save(data)
+        await userApi.listChildCategoryById(this.row.id).then(response => {
+          this.$set(this.$refs.treeTable.store.states.lazyTreeNodeMap, this.row.id, response.data.childList)
         })
+        this.$refs.treeTable.toggleRowExpansion(this.row, true);
+      } else if (currentRow.status == 'editRow'){
+        console.log("编辑category，父id是：" + data.parentId)
+        await userApi.update(data)
+        this.$set(this.row, 'title', this.formData.title)
+        this.$set(this.row, 'department', this.formData.department)
+        this.$set(this.row, 'description', this.formData.description)
+      } else {
+        console.log("你想干嘛？")
+      }
+
+      this.dialogFlag = false
     },
 
-    // 每页记录数改变，size：回调参数，表示当前选中的“每页条数”
-    changePageSize(size) {
-      this.limit = size
-      this.fetchData()
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`);
     },
-
-    // 改变页码，page：回调参数，表示当前选中的“页码”
-    changeCurrentPage(page) {
-      this.page = page
-      this.fetchData()
-    },
-
-    // 重置表单
-    resetData() {
-      this.searchObj = {}
-      this.fetchData()
-    },
-
-    // 锁定和解锁
-    lock(id, status) {
-      userInfoApi.lock(id, status).then(response => {
-        this.$message.success(response.message)
-        this.fetchData()
-      })
-    },
-
-    showLoginRecord(id) {
-      this.dialogTableVisible = true
-      userInfoApi.getuserLoginRecordTop50(id).then(response => {
-        this.loginRecordList = response.data.list
-      })
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`);
     }
   }
 }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 
 </style>
