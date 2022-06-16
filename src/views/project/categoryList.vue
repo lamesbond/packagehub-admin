@@ -45,6 +45,7 @@
       </el-table-column>
       <el-table-column prop="department" label="部门" />
       <el-table-column prop="description" label="项目描述" />
+      <el-table-column prop="releaseNote" label="发行日志" />
       <el-table-column prop="type" label="类型" />
       <el-table-column label="发布状态">
         <template slot-scope="scope">
@@ -60,6 +61,9 @@
           </el-button>
           <el-button v-if="scope.row.pubStatus == '1'" type="danger" size="mini" @click="handlePublish(scope.row, scope.$index, 0)">下架</el-button>
           <el-button v-else type="primary" size="mini" @click="handlePublish(scope.row, scope.$index, 1)">发布</el-button>
+          <el-button v-if="scope.row.type == 'file'" type="primary" size="mini">
+            <a @click="handleDownload(scope.row.name, scope.row.url, 1)">下载</a>
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -209,6 +213,14 @@ export default {
       }
 
       this.dialogFlag = false
+    },
+
+    handleDownload(name,url) {
+      var a = document.createElement('a');
+      var event = new MouseEvent('click');
+      a.download = name;
+      a.href = url;
+      a.dispatchEvent(event);
     }
   }
 }

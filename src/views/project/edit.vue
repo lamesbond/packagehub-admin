@@ -1,13 +1,13 @@
 <template>
 <div>
-  <h3>这是发行编辑页面</h3>
+  <h3>这是发行{{ this.projectPath }}编辑页面</h3>
 
   <div style="margin: 20px 0;"></div>
   <el-input
     type="textarea"
     :autosize="{ minRows: 2, maxRows: 10}"
     placeholder="请输入内容"
-    v-model="textarea2">
+    v-model="releaseNote">
   </el-input>
 
   <el-upload
@@ -21,6 +21,8 @@
     :file-list="fileList">
     <el-button size="small" type="primary">点击上传</el-button>
   </el-upload>
+
+  <el-button @click='save'>编辑完成，点击保存</el-button>
 </div>
 </template>
 
@@ -31,6 +33,8 @@ export default {
   name: "",
   data () {
     return {
+      projectPath: '',
+      releaseNote: '',
       uploadParam: {
         module: "ningning"
       },
@@ -40,6 +44,18 @@ export default {
       release: {
       }
     }
+  },
+  created() {
+    projectApi.listChildCategoryById(this.$route.params.id).then(response => {
+      this.fileList = response.data.childList
+    })
+    projectApi.listParentCategoryById(this.$route.params.id).then(response => {
+      this.projectPath = response.data.projectPath
+    })
+    projectApi.getOne(this.$route.params.id).then(response => {
+      this.releaseNote = response.data.project.releaseNote
+    })
+
   },
   methods: {
     beforeUpload(file, fileList) {
@@ -67,6 +83,12 @@ export default {
       newFile.url = res.data.url
       projectApi.save(newFile)
     },
+    save() {
+      let savedata = {}
+      savedata.releaseNote = this.releaseNote
+      savedata.id = this.$route.params.id
+      projectApi.update(savedata)
+    }
   }
 }
 </script>
