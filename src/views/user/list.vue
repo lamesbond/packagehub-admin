@@ -19,25 +19,34 @@
       <el-table-column prop="email" label="邮箱" />
       <el-table-column prop="department" label="部门" />
       <el-table-column prop="role" label="角色" />
-      <el-table-column prop="status" label="状态" />
+      <el-table-column label="状态">
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.status == 1" type="" size="mini">正常</el-tag>
+          <el-tag v-else type="warning" size="mini">被锁</el-tag>
+        </template>
+      </el-table-column>
 
       <el-table-column label="操作" width="350" align="center">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini">编辑</el-button>
-          <el-button >发布</el-button>
+          <el-button type="primary" size="mini" @click="handleEditRow(scope.row, scope.$index)">编辑</el-button>
+          <el-button v-if="scope.row.status == 1" type="primary" size="mini" @click="lock(scope.row.id, 0)">锁定</el-button>
+          <el-button v-else type="danger" size="mini" @click="lock(scope.row.id, 1)">解锁</el-button>
+          <el-button type="danger" size="mini" @click="handleDelRow(scope.row.id)">删除</el-button>
+          <el-button type="primary" size="mini"><router-link :to="'/user/auth/' + scope.row.id">授权</router-link></el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <div class="block">
-      <span class="demonstration">完整功能</span>
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
+        :page-size="pageLimit"
+        :total="pageTotal"
         :page-sizes="[10, 20, 50]"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="pageTotal">
+        >
       </el-pagination>
     </div>
 
@@ -48,11 +57,17 @@
         <el-form-item label="用户名" label-width="128px">
           <el-input v-model="formData.name" autocomplete="off"></el-input>
         </el-form-item>
+        <el-form-item label="密码" label-width="128px">
+          <el-input v-model="formData.password" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" label-width="128px">
+          <el-input v-model="formData.email" autocomplete="off"></el-input>
+        </el-form-item>
         <el-form-item label="部门" label-width="128px">
           <el-input v-model="formData.department" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="描述" label-width="128px">
-          <el-input v-model="formData.description" autocomplete="on"></el-input>
+        <el-form-item label="角色" label-width="128px">
+          <el-input v-model="formData.role" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
 
@@ -71,18 +86,19 @@ export default {
   name: "",
   data() {
     return {
-      currentPage: 2,
-      pageTotal: null,
+      currentPage: 1,
+      pageTotal: 0,
+      pageLimit: 10,
       tableData: [
       ], // 列表
       dialogFlag: false,
       formData: {
         id: null,
-        parentId: '0',
+        password: '',
+        email: '',
         department: '',
-        description: '',
-        type: '0',
-        pubStatus: '0'
+        role: '0',
+        status: '0'
       },
       currentRow: {
         status: '',
@@ -95,13 +111,13 @@ export default {
   },
 
   created() {
-    this.fetchData(1,10)
+    this.fetchData()
   },
 
   methods: {
 
-    fetchData(current,size) {
-      userApi.getPage(current,size).then(response => {
+    fetchData() {
+      userApi.getPage(this.currentPage,this.pageLimit).then(response => {
         this.tableData = response.data.User.records
         this.pageTotal = response.data.User.total
       })
@@ -111,59 +127,35 @@ export default {
       this.formData = {}
       var timestamp = new Date().getTime()
       this.formData.id = timestamp
-      this.formData.parentId = '0'
-      this.formData.pubStatus = '0'
-      this.formData.type = 'project'
 
-      this.currentRow.status = 'addProject'
+      this.currentRow.status = 'addUser'
       this.dialogFlag = true
     },
 
     handleEditRow(row, index) {
       this.formData = JSON.parse(JSON.stringify(row))
       this.row = row
-      this.currentRow.status = 'editRow'
+      this.currentRow.status = 'editUser'
       this.currentRow.index = index
       this.dialogFlag = true
     },
 
-    async handleDelRow(row,index) {
+    async handleDelRow(id) {
       console.log("开始删节点了")
-      await userApi.remove(row.id)
+      await userApi.remove(id)
       console.log("已经提交后台了")
-      await userApi.listChildCategoryById(row.parentId).then(response => {
-        this.$set(this.$refs.treeTable.store.states.lazyTreeNodeMap, row.parentId, response.data.childList)
-      })
-    },
-
-    handlePublish(row, index, pubStatus) {
-      let data = {}
-      this.$set(row, 'pubStatus', pubStatus)
-      data.id = row.id
-      data.pubStatus = pubStatus
-      userApi.update(data)
+      await this.fetchData()
     },
 
     async handleSubmitRow() {
       let data = this.formData
       let currentRow = this.currentRow
-      if (currentRow.status == 'addProject') {
-        console.log("新增project，父id是：" + '0')
+      if (currentRow.status == 'addUser') {
         await userApi.save(data)
         this.tableData.unshift(data)
-      } else if (currentRow.status == 'addRow'){
-        console.log("新增category，父id是：" + data.parentId)
-        await userApi.save(data)
-        await userApi.listChildCategoryById(this.row.id).then(response => {
-          this.$set(this.$refs.treeTable.store.states.lazyTreeNodeMap, this.row.id, response.data.childList)
-        })
-        this.$refs.treeTable.toggleRowExpansion(this.row, true);
-      } else if (currentRow.status == 'editRow'){
-        console.log("编辑category，父id是：" + data.parentId)
+      } else if (currentRow.status == 'editUser'){
         await userApi.update(data)
-        this.$set(this.row, 'title', this.formData.title)
-        this.$set(this.row, 'department', this.formData.department)
-        this.$set(this.row, 'description', this.formData.description)
+        this.fetchData()
       } else {
         console.log("你想干嘛？")
       }
@@ -172,11 +164,23 @@ export default {
     },
 
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      this.pageLimit = val
+      this.fetchData()
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
-    }
+      this.currentPage = val
+      this.fetchData()
+    },
+
+    lock(id, status) {
+      let data = {}
+      data.id = id
+      data.status = status
+      userApi.update(data).then(response => {
+        this.$message.success(response.message)
+        this.fetchData()
+      })
+    },
   }
 }
 </script>

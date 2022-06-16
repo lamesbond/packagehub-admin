@@ -8,30 +8,16 @@ export default{
     })
   },
 
-  listParentCategoryById(id) {
-    return request({
-      url: `/admin/core/doc/listParentCategoryById/${id}`,
-      method: 'get'
-    })
-  },
-
-  listMenuById(id) {
-    return request({
-      url: `/admin/core/doc/listMenuById/${id}`,
-      method: 'get'
-    })
-  },
-
   getOne(id) {
     return request({
-      url: `/admin/core/doc/getOne/${id}`,
+      url: `/admin/core/user/getOne/${id}`,
       method: 'get'
     })
   },
 
   save(data) {
     return request({
-      url: `/admin/core/doc/save`,
+      url: `/admin/core/user/save`,
       method: 'post',
       data: data
     })
@@ -39,14 +25,14 @@ export default{
 
   remove(id) {
     return request({
-      url: `/admin/core/doc/remove/` + id,
+      url: `/admin/core/user/remove/` + id,
       method: 'delete'
     })
   },
 
   update(data) {
     return request({
-      url: `/admin/core/doc/update`,
+      url: `/admin/core/user/update`,
       method: 'post',
       data: data
     })

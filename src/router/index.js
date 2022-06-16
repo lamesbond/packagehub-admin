@@ -60,15 +60,22 @@ export const constantRoutes = [
     path: '/user',
     component: Layout,
     redirect: '/user/list',
-    name: 'coreUserInfo',
+    name: 'coreUser',
     meta: { title: '用户管理', icon: 'user' },
     alwaysShow: true,
     children: [
       {
         path: 'list',
-        name: 'coreUserInfoList',
+        name: 'coreUserList',
         component: () => import('@/views/user/list'),
         meta: { title: '用户列表' }
+      },
+      {
+        path: 'auth/:id',
+        name: 'coreUserAuth',
+        component: () => import('@/views/user/auth'),
+        meta: { title: '用户授权' },
+        hidden: true
       }
     ]
   },
