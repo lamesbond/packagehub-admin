@@ -9,7 +9,6 @@
           row-key="id"
           border
           stripe
-          che
           size="mini"
           class="data-table"
           tooltip-effect="dark"
@@ -46,6 +45,7 @@
           tooltip-effect="dark"
           header-row-class-name="data-table-header"
           lazy
+          @select="handleSelectDoc"
           :show-overflow-tooltip="true"
           :load="docLoad"
           :tree-props="{children:'children', hasChildren: 'hasChildren'}"
@@ -65,6 +65,7 @@
       </el-aside>
 
       <el-main>
+        <el-button type="primary" round @click="save">保存</el-button>
         <h1>已选择项目</h1>
         <el-tag
           :key="tag"
@@ -74,7 +75,16 @@
           @close="handleClose(tag)">
           {{tag.name}}
         </el-tag>
+
         <h1>已选择文档</h1>
+        <el-tag
+          :key="tag"
+          v-for="tag in this.selectedDoc"
+          closable
+          :disable-transitions="false"
+          @close="handleClose(tag)">
+          {{tag.title}}
+        </el-tag>
       </el-main>
     </el-container>
 
@@ -84,6 +94,7 @@
 <script>
 import projectApi from "@/api/core/project";
 import docApi from "@/api/core/doc";
+import userAuthApi from "@/api/core/userAuth";
 
 export default {
   name: "",
@@ -91,7 +102,8 @@ export default {
     return {
       projetcTable: [], // 列表
       docTable: [], // 列表
-      selectedProject: []
+      selectedProject: [],
+      selectedDoc: []
     }
   },
 
@@ -126,10 +138,32 @@ export default {
       this.selectedProject = selection
     },
 
+    handleSelectDoc(selection, row) {
+      console.log("先择的doc是：" + selection + row.title)
+      this.selectedDoc = selection
+    },
+
     handleClose(tag) {
       console.log("quxiaozuxnaz")
     },
 
+    save() {
+      let projectList = []
+      let docList = []
+      let authData = {}
+      for (var i =0; i < this.selectedProject.length; i++) {
+        console.log(this.selectedProject[i].id)
+        projectList.push(this.selectedProject[i].id)
+      }
+      for (var i =0; i < this.selectedDoc.length; i++) {
+        console.log(this.selectedDoc[i].id)
+        docList.push(this.selectedDoc[i].id)
+      }
+      authData.userId = 1223
+      authData.projectList = projectList
+      authData.docList = docList
+      userAuthApi.save(authData)
+    }
   }
 }
 </script>
