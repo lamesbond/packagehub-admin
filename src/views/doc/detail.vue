@@ -128,7 +128,7 @@
 </template>
 
 <script>
-import docApi from '@/api/core/doc'
+import docApi from '@/api/doc'
 import wangread from '@/components/WangEditor/wangread'
 export default {
   components: { wangread },

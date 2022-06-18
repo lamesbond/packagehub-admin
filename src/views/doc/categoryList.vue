@@ -83,7 +83,7 @@
 </template>
 
 <script>
-import docApi from '@/api/core/doc'
+import docApi from '@/api/doc'
 
 export default {
   name: "",

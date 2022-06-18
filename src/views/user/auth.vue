@@ -92,9 +92,9 @@
 </template>
 
 <script>
-import projectApi from "@/api/core/project";
-import docApi from "@/api/core/doc";
-import userAuthApi from "@/api/core/userAuth";
+import projectApi from "@/api/project";
+import docApi from "@/api/doc";
+import userApi from '@/api/user'
 
 export default {
   name: "",
@@ -162,7 +162,7 @@ export default {
       authData.userId = 1223
       authData.projectList = projectList
       authData.docList = docList
-      userAuthApi.save(authData)
+      userApi.auth(authData)
     }
   }
 }

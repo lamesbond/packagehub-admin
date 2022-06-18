@@ -1,27 +1,48 @@
 import request from '@/utils/request'
 
-export function login(data) {
-  return request({
-    baseURL: '/dev-api',
-    url: '/vue-admin-template/user/login',
-    method: 'post',
-    data
-  })
-}
+export default{
+  getPage(current,size) {
+    return request({
+      url: `/admin/core/user/getPage/${current}/${size}`,
+      method: 'get'
+    })
+  },
 
-export function getInfo(token) {
-  return request({
-    baseURL: '/dev-api',
-    url: '/vue-admin-template/user/info',
-    method: 'get',
-    params: { token }
-  })
-}
+  getOne(id) {
+    return request({
+      url: `/admin/core/user/getOne/${id}`,
+      method: 'get'
+    })
+  },
 
-export function logout() {
-  return request({
-    baseURL: '/dev-api',
-    url: '/vue-admin-template/user/logout',
-    method: 'post'
-  })
+  save(data) {
+    return request({
+      url: `/admin/core/user/save`,
+      method: 'post',
+      data: data
+    })
+  },
+
+  remove(id) {
+    return request({
+      url: `/admin/core/user/remove/` + id,
+      method: 'delete'
+    })
+  },
+
+  update(data) {
+    return request({
+      url: `/admin/core/user/update`,
+      method: 'post',
+      data: data
+    })
+  },
+
+  auth(data) {
+    return request({
+      url: `/admin/core/user/auth`,
+      method: 'post',
+      data: data
+    })
+  }
 }

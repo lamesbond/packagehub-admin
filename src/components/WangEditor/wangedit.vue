@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import docApi from '@/api/core/doc'
+import docApi from '@/api/doc'
 import Vue from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import '@wangeditor/editor/dist/css/style.css'

@@ -1,4 +1,4 @@
-import docApi from '@/api/core/doc'
+import docApi from '@/api/doc'
 
 const state = {
   versionId: '',

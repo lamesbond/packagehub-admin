@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import docApi from '@/api/core/doc'
+import docApi from '@/api/doc'
 import wangedit from '@/components/WangEditor/wangedit'
 
 export default {

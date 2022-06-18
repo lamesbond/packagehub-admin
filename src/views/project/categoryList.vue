@@ -92,7 +92,7 @@
 </template>
 
 <script>
-import projectApi from '@/api/core/project'
+import projectApi from '@/api/project'
 
 export default {
   name: "",

@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import userApi from '@/api/core/user'
+import userApi from '@/api/user'
 
 export default {
   name: "",
