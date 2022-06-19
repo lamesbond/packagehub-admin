@@ -19,7 +19,7 @@
           :load="projectLoad"
           :tree-props="{children:'children', hasChildren: 'hasChildren'}"
         >
-          <el-table-column type="selection" width="55"></el-table-column>
+          <el-table-column type="selection" :selectable="checkSelectable" width="55"></el-table-column>
           <el-table-column prop="name" label="项目分类列表" width="260">
           </el-table-column>
           <el-table-column prop="department" label="部门" />
@@ -50,11 +50,11 @@
           :load="docLoad"
           :tree-props="{children:'children', hasChildren: 'hasChildren'}"
         >
-          <el-table-column type="selection" width="55"></el-table-column>
-          <el-table-column prop="title" label="文档列表" width="260">
-          </el-table-column>
+          <el-table-column type="selection" :selectable="checkSelectable" width="55"></el-table-column>
+          <el-table-column prop="title" label="文档列表" width="260"></el-table-column>
           <el-table-column prop="department" label="部门" />
-          <el-table-column prop="description" label="项目描述" />
+          <el-table-column prop="description" label="文档描述" />
+          <el-table-column prop="type" label="类型" />
           <el-table-column label="发布状态">
             <template slot-scope="scope">
               <el-tag v-if="scope.row.pubStatus == '0'" type="danger" size="mini">未发布</el-tag>
@@ -95,6 +95,7 @@
 import projectApi from "@/api/project";
 import docApi from "@/api/doc";
 import userApi from '@/api/user'
+import cookies from "vue-cookies";
 
 export default {
   name: "",
@@ -113,22 +114,22 @@ export default {
 
   methods: {
     fetchData() {
-      projectApi.listChildCategoryById(0).then(response => {
+      projectApi.listChildCategoryById(0, cookies.get("packagehub-token").slice(10)).then(response => {
         this.projetcTable = response.data.childList
       })
-      docApi.listChildCategoryById(0).then(response => {
+      docApi.listChildCategoryById(0, cookies.get("packagehub-token").slice(10)).then(response => {
         this.docTable = response.data.childList
       })
     },
     // 加载列表数据
     projectLoad(tree, treeNode, resolve) {
-      projectApi.listChildCategoryById(tree.id).then(response => {
+      projectApi.listChildCategoryById(tree.id, cookies.get("packagehub-token").slice(10)).then(response => {
         resolve(response.data.childList)
       })
     },
     // 加载列表数据
     docLoad(tree, treeNode, resolve) {
-      docApi.listChildCategoryById(tree.id).then(response => {
+      docApi.listChildCategoryById(tree.id, cookies.get("packagehub-token").slice(10)).then(response => {
         resolve(response.data.childList)
       })
     },
@@ -147,6 +148,10 @@ export default {
       console.log("quxiaozuxnaz")
     },
 
+    checkSelectable(row) {
+      return row.type == 'project' || row.type == 'doc'
+    },
+
     save() {
       let projectList = []
       let docList = []
@@ -159,7 +164,7 @@ export default {
         console.log(this.selectedDoc[i].id)
         docList.push(this.selectedDoc[i].id)
       }
-      authData.userId = 1223
+      authData.userId = this.$route.params.id
       authData.projectList = projectList
       authData.docList = docList
       userApi.auth(authData)

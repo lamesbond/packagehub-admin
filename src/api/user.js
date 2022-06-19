@@ -1,9 +1,9 @@
 import request from '@/utils/request'
 
-export default{
-  getPage(current,size) {
+export default {
+  selectPage(current, size) {
     return request({
-      url: `/admin/core/user/getPage/${current}/${size}`,
+      url: `/admin/core/user/selectPage/${current}/${size}`,
       method: 'get'
     })
   },
@@ -44,5 +44,6 @@ export default{
       method: 'post',
       data: data
     })
-  }
+  },
+
 }

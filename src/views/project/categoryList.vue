@@ -29,10 +29,6 @@
             <i v-if="scope.row.type =='project' || scope.row.type =='category'" style="font-size:18px;margin-left:5px;color:#00ff00;cursor: pointer;"
                class="el-icon-document-add" @click="handleAddRow(scope.row,scope.$index,'release_version')"></i>
           </el-tooltip>
-          <el-tooltip class="item" effect="dark" content="添加系统版本" placement="top">
-            <i v-if="scope.row.type =='release_version'" style="font-size:18px;margin-left:5px;color:#00ff00;cursor: pointer;"
-               class="el-icon-document-add" @click="handleAddRow(scope.row,scope.$index,'os_version')"></i>
-          </el-tooltip>
           <el-tooltip class="item" effect="dark" content="编辑" placement="top">
             <i style="font-size:18px;margin-left:5px;color:#f1ff;cursor: pointer;"
                class="el-icon-edit" @click="handleEditRow(scope.row,scope.$index)"></i>
@@ -93,6 +89,7 @@
 
 <script>
 import projectApi from '@/api/project'
+import cookies from "vue-cookies";
 
 export default {
   name: "",
@@ -126,13 +123,13 @@ export default {
   methods: {
 
     fetchData() {
-      projectApi.listChildCategoryById(0).then(response => {
+      projectApi.listChildCategoryById(0, cookies.get("packagehub-token").slice(10)).then(response => {
         this.tableData = response.data.childList
       })
     },
     // 加载列表数据
     load(tree, treeNode, resolve) {
-      projectApi.listChildCategoryById(tree.id).then(response => {
+      projectApi.listChildCategoryById(tree.id, cookies.get("packagehub-token").slice(10)).then(response => {
         resolve(response.data.childList)
       })
     },
@@ -190,6 +187,7 @@ export default {
 
     async handleSubmitRow() {
       let data = this.formData
+      data.userId = cookies.get("packagehub-token").slice(10)
       let currentRow = this.currentRow
       if (currentRow.status == 'addProject') {
         console.log("新增project，父id是：" + '0')

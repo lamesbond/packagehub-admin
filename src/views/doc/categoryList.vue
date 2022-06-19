@@ -22,12 +22,12 @@
         <template slot-scope="scope">
           <span class="showName">{{ scope.row.title }}</span>
           <el-tooltip class="item" effect="dark" content="添加子分类" placement="top">
-            <i v-if="scope.row.isDoc !=='1'" style="font-size:18px;margin-left:5px;color:#00ff00;cursor: pointer;"
-               class="el-icon-folder-add" @click="handleAddRow(scope.row,scope.$index,'0',)"></i>
+            <i v-if="scope.row.type !=='release_version'" style="font-size:18px;margin-left:5px;color:#00ff00;cursor: pointer;"
+               class="el-icon-folder-add" @click="handleAddRow(scope.row,scope.$index,'category',)"></i>
           </el-tooltip>
           <el-tooltip class="item" effect="dark" content="添加发行版本" placement="top">
-            <i v-if="scope.row.isDoc !=='1'" style="font-size:18px;margin-left:5px;color:#00ff00;cursor: pointer;"
-               class="el-icon-document-add" @click="handleAddRow(scope.row,scope.$index,'1','新版本')"></i>
+            <i v-if="scope.row.type !=='release_version'" style="font-size:18px;margin-left:5px;color:#00ff00;cursor: pointer;"
+               class="el-icon-document-add" @click="handleAddRow(scope.row,scope.$index,'release_version')"></i>
           </el-tooltip>
           <el-tooltip class="item" effect="dark" content="编辑" placement="top">
             <i style="font-size:18px;margin-left:5px;color:#f1ff;cursor: pointer;"
@@ -40,7 +40,8 @@
         </template>
       </el-table-column>
       <el-table-column prop="department" label="部门" />
-      <el-table-column prop="description" label="项目描述" />
+      <el-table-column prop="description" label="文档描述" />
+      <el-table-column prop="type" label="类型" />
       <el-table-column label="发布状态">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.pubStatus == '0'" type="danger" size="mini">未发布</el-tag>
@@ -50,7 +51,7 @@
 
       <el-table-column label="操作" width="350" align="center">
         <template slot-scope="scope">
-          <el-button v-if="scope.row.isDoc == '1'" type="primary" size="mini">
+          <el-button v-if="scope.row.type == 'release_version'" type="primary" size="mini">
             <router-link :to="'/doc/menu/' + scope.row.id">查看/编辑</router-link>
           </el-button>
           <el-button v-if="scope.row.pubStatus == '1'" type="danger" size="mini" @click="handlePublish(scope.row, scope.$index, 0)">下架</el-button>
@@ -84,6 +85,7 @@
 
 <script>
 import docApi from '@/api/doc'
+import cookies from "vue-cookies";
 
 export default {
   name: "",
@@ -97,7 +99,7 @@ export default {
         parentId: '0',
         department: '',
         description: '',
-        isDoc: '0',
+        type: '0',
         pubStatus: '0'
       },
       currentRow: {
@@ -117,13 +119,14 @@ export default {
   methods: {
 
     fetchData() {
-      docApi.listChildCategoryById(0).then(response => {
+      docApi.listChildCategoryById(0, cookies.get("packagehub-token").slice(10)).then(response => {
+
         this.tableData = response.data.childList
       })
     },
     // 加载列表数据
     load(tree, treeNode, resolve) {
-      docApi.listChildCategoryById(tree.id).then(response => {
+      docApi.listChildCategoryById(tree.id, cookies.get("packagehub-token").slice(10)).then(response => {
         resolve(response.data.childList)
       })
     },
@@ -134,19 +137,19 @@ export default {
       this.formData.id = timestamp
       this.formData.parentId = '0'
       this.formData.pubStatus = '0'
-      this.formData.isDoc = '0'
+      this.formData.type = 'doc'
 
       this.currentRow.status = 'addProject'
       this.dialogFlag = true
     },
 
-    handleAddRow(row,index,isDoc) {
+    handleAddRow(row,index,type) {
       var timestamp = new Date().getTime()
       this.formData = {}
       this.formData.id = timestamp
       this.formData.parentId = row.id
       this.formData.pubStatus = '0'
-      this.formData.isDoc = isDoc
+      this.formData.type = type
       this.formData.department = row.department
 
       this.row = row
@@ -181,6 +184,7 @@ export default {
 
     async handleSubmitRow() {
       let data = this.formData
+      data.userId = cookies.get("packagehub-token").slice(10)
       let currentRow = this.currentRow
       if (currentRow.status == 'addProject') {
         console.log("新增project，父id是：" + '0')

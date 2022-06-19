@@ -1,9 +1,9 @@
 import request from '@/utils/request'
 
-export default{
-  listChildCategoryById(id) {
+export default {
+  listChildCategoryById(id, userId) {
     return request({
-      url: `/admin/core/doc/listChildCategoryById/${id}`,
+      url: `/admin/core/doc/listChildCategoryById/${id}/${userId}`,
       method: 'get'
     })
   },

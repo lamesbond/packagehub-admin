@@ -15,7 +15,7 @@
       :show-overflow-tooltip="true"
     >
       <el-table-column type="index" label="序号" width="60" align="center" />
-      <el-table-column prop='name' label="用户名" width="260"></el-table-column>
+      <el-table-column prop='username' label="用户名" width="260"></el-table-column>
       <el-table-column prop="email" label="邮箱" />
       <el-table-column prop="department" label="部门" />
       <el-table-column prop="role" label="角色" />
@@ -55,7 +55,7 @@
 
       <el-form :model="formData">
         <el-form-item label="用户名" label-width="128px">
-          <el-input v-model="formData.name" autocomplete="off"></el-input>
+          <el-input v-model="formData.username" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="密码" label-width="128px">
           <el-input v-model="formData.password" autocomplete="off"></el-input>
@@ -94,6 +94,7 @@ export default {
       dialogFlag: false,
       formData: {
         id: null,
+        username: '',
         password: '',
         email: '',
         department: '',
@@ -117,7 +118,7 @@ export default {
   methods: {
 
     fetchData() {
-      userApi.getPage(this.currentPage,this.pageLimit).then(response => {
+      userApi.selectPage(this.currentPage,this.pageLimit).then(response => {
         this.tableData = response.data.User.records
         this.pageTotal = response.data.User.total
       })

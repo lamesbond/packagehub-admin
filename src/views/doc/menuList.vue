@@ -47,7 +47,7 @@
               <el-input ref="input"
                         @blur="() => submitEdit(node,data)"
                         v-model="newtitle"
-                        style="height:20px line-height:20px"></el-input>
+                        style="height:20px; line-height:20px"></el-input>
             </template>
             <!-- 如果不是编辑状态 -->
             <span v-else v-text="data.title"></span>
@@ -156,10 +156,10 @@ export default {
       var savedata = {}
       savedata.id = timestamp
       savedata.title = 'T' + timestamp
+      savedata.type = 'menu'
       if (typeof(data) == "undefined") {
         savedata.parentId = this.$route.params.versionId
         docApi.save(savedata)
-
         this.menuData.unshift(newRow)
       } else {
         savedata.parentId = data.id

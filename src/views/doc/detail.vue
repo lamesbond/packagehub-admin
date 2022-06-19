@@ -163,7 +163,7 @@ export default {
       let updateData = {}
       updateData.id = draggingNode.data.id
       updateData.destId = dropNode.data.id
-      updateData.method = dropType
+      updateData.dragMethod = dropType
       docApi.update(updateData)
     },
     allowDrop() {
@@ -187,6 +187,7 @@ export default {
       var savedata = {}
       savedata.id = timestamp
       savedata.title = 'T' + timestamp
+      savedata.type = 'menu'
       if (typeof(data) == "undefined") {
         savedata.parentId = this.$route.params.versionId
         docApi.save(savedata)

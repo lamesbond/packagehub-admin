@@ -31,31 +31,6 @@ export const constantRoutes = [
     }]
   },
 
-
-  {
-    path: '/user',
-    component: Layout,
-    redirect: '/user/list',
-    name: 'coreUser',
-    meta: { title: '用户管理', icon: 'user' },
-    alwaysShow: true,
-    children: [
-      {
-        path: 'list',
-        name: 'coreUserList',
-        component: () => import('@/views/user/list'),
-        meta: { title: '用户列表' }
-      },
-      {
-        path: 'auth/:id',
-        name: 'coreUserAuth',
-        component: () => import('@/views/user/auth'),
-        meta: { title: '用户授权' },
-        hidden: true
-      }
-    ]
-  },
-
   {
     path: '/project',
     component: Layout,
@@ -123,6 +98,30 @@ export const constantRoutes = [
  * the routes that need to be dynamically loaded based on user roles
  */
 export const asyncRoutes = [
+
+  {
+    path: '/user',
+    component: Layout,
+    redirect: '/user/list',
+    name: 'coreUser',
+    meta: { title: '用户管理', icon: 'user', roles: 'admin' },
+    alwaysShow: true,
+    children: [
+      {
+        path: 'list',
+        name: 'coreUserList',
+        component: () => import('@/views/user/list'),
+        meta: { title: '用户列表' }
+      },
+      {
+        path: 'auth/:id',
+        name: 'coreUserAuth',
+        component: () => import('@/views/user/auth'),
+        meta: { title: '用户授权' },
+        hidden: true
+      }
+    ]
+  },
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
