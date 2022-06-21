@@ -114,22 +114,22 @@ export default {
 
   methods: {
     fetchData() {
-      projectApi.listChildCategoryById(0, cookies.get("packagehub-token").slice(10)).then(response => {
+      projectApi.listNextChildNode(0, cookies.get("packagehub-token").slice(10)).then(response => {
         this.projetcTable = response.data.childList
       })
-      docApi.listChildCategoryById(0, cookies.get("packagehub-token").slice(10)).then(response => {
+      docApi.listNextChildNode(0, cookies.get("packagehub-token").slice(10)).then(response => {
         this.docTable = response.data.childList
       })
     },
     // 加载列表数据
     projectLoad(tree, treeNode, resolve) {
-      projectApi.listChildCategoryById(tree.id, cookies.get("packagehub-token").slice(10)).then(response => {
+      projectApi.listNextChildNode(tree.id, cookies.get("packagehub-token").slice(10)).then(response => {
         resolve(response.data.childList)
       })
     },
     // 加载列表数据
     docLoad(tree, treeNode, resolve) {
-      docApi.listChildCategoryById(tree.id, cookies.get("packagehub-token").slice(10)).then(response => {
+      docApi.listNextChildNode(tree.id, cookies.get("packagehub-token").slice(10)).then(response => {
         resolve(response.data.childList)
       })
     },
