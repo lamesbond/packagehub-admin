@@ -1,16 +1,16 @@
 import request from '@/utils/request'
 
 export default {
-  listChildCategoryById(id, userId) {
+  listNextChildNode(id, userId) {
     return request({
-      url: `/admin/core/project/listChildCategoryById/${id}/${userId}`,
+      url: `/admin/core/project/listNextChildNode/${id}/${userId}`,
       method: 'get'
     })
   },
 
-  listParentCategoryById(id) {
+  listParentNode(id) {
     return request({
-      url: `/admin/core/project/listParentCategoryById/${id}`,
+      url: `/admin/core/project/listParentNode/${id}`,
       method: 'get'
     })
   },
@@ -47,7 +47,7 @@ export default {
   update(data) {
     return request({
       url: `/admin/core/project/update`,
-      method: 'post',
+      method: 'put',
       data: data
     })
   }

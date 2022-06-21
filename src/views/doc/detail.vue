@@ -190,6 +190,7 @@ export default {
       savedata.type = 'menu'
       if (typeof(data) == "undefined") {
         savedata.parentId = this.$route.params.versionId
+        console.log("新增文档目录：" + JSON.stringify(savedata))
         docApi.save(savedata)
 
         this.menuData.unshift(newRow)
@@ -254,10 +255,10 @@ export default {
     }
   },
   mounted() {
-    docApi.listMenuById(this.$route.params.versionId).then(response => {
+    docApi.listAllChildNode(this.$route.params.versionId).then(response => {
       this.menuData = response.data.docMenu
     })
-    docApi.listParentCategoryById(this.$route.params.versionId).then(response => {
+    docApi.listParentNode(this.$route.params.versionId).then(response => {
       this.parentCategory = response.data.docPath
     })
     this.$refs.wangread.getOne(this.$route.params.menuId)

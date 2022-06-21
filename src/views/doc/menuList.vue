@@ -89,6 +89,7 @@
 
 <script>
 import docApi from '@/api/doc'
+import cookies from "vue-cookies";
 
 export default {
   data() {
@@ -110,20 +111,20 @@ export default {
     }
   },
   created() {
-    this.listMenuById(this.$route.params.versionId)
-    this.listParentCategoryById(this.$route.params.versionId)
+    this.listAllChildNode(this.$route.params.versionId)
+    this.listParentNode(this.$route.params.versionId)
   },
   methods: {
 
     // 调api获取接口分组数据
-    listMenuById(id) {
-      docApi.listMenuById(id).then(response => {
+    listAllChildNode(id) {
+      docApi.listAllChildNode(id).then(response => {
         this.menuData = response.data.docMenu
       })
     },
 
-    listParentCategoryById(id) {
-      this.parentCategory = docApi.listParentCategoryById(id).then(response => {
+    listParentNode(id) {
+      this.parentCategory = docApi.listParentNode(id).then(response => {
         this.parentCategory = response.data.docPath
       })
     },

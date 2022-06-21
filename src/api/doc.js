@@ -1,23 +1,23 @@
 import request from '@/utils/request'
 
 export default {
-  listChildCategoryById(id, userId) {
+  listNextChildNode(id, userId) {
     return request({
-      url: `/admin/core/doc/listChildCategoryById/${id}/${userId}`,
+      url: `/admin/core/doc/listNextChildNode/${id}/${userId}`,
       method: 'get'
     })
   },
 
-  listParentCategoryById(id) {
+  listParentNode(id) {
     return request({
-      url: `/admin/core/doc/listParentCategoryById/${id}`,
+      url: `/admin/core/doc/listParentNode/${id}`,
       method: 'get'
     })
   },
 
-  listMenuById(id) {
+  listAllChildNode(id) {
     return request({
-      url: `/admin/core/doc/listMenuById/${id}`,
+      url: `/admin/core/doc/listAllChildNode/${id}`,
       method: 'get'
     })
   },

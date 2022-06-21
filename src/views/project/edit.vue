@@ -28,6 +28,7 @@
 
 <script>
 import projectApi from '@/api/project'
+import cookies from "vue-cookies";
 
 export default {
   name: "",
@@ -46,10 +47,10 @@ export default {
     }
   },
   created() {
-    projectApi.listChildCategoryById(this.$route.params.id).then(response => {
+    projectApi.listNextChildNode(this.$route.params.id, cookies.get("packagehub-token").slice(10)).then(response => {
       this.fileList = response.data.childList
     })
-    projectApi.listParentCategoryById(this.$route.params.id).then(response => {
+    projectApi.listParentNode(this.$route.params.id).then(response => {
       this.projectPath = response.data.projectPath
     })
     projectApi.getOne(this.$route.params.id).then(response => {

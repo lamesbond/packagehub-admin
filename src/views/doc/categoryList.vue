@@ -48,6 +48,12 @@
           <el-tag v-else type="success" size="mini">已发布</el-tag>
         </template>
       </el-table-column>
+      <el-table-column label="发行范围">
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.pubRange == '0'" type="danger" size="mini">私有</el-tag>
+          <el-tag v-else type="success" size="mini">公开</el-tag>
+        </template>
+      </el-table-column>
 
       <el-table-column label="操作" width="350" align="center">
         <template slot-scope="scope">
@@ -72,6 +78,10 @@
         </el-form-item>
         <el-form-item label="描述" label-width="128px">
           <el-input v-model="formData.description" autocomplete="on"></el-input>
+        </el-form-item>
+        <el-form-item label="范围" label-width="128px">
+          <el-radio v-model="formData.pubRange" label="1">公开</el-radio>
+          <el-radio v-model="formData.pubRange" label="0">私有</el-radio>
         </el-form-item>
       </el-form>
 
@@ -100,7 +110,8 @@ export default {
         department: '',
         description: '',
         type: '0',
-        pubStatus: '0'
+        pubStatus: '0',
+        pubRange: '0'
       },
       currentRow: {
         status: '',
@@ -119,14 +130,14 @@ export default {
   methods: {
 
     fetchData() {
-      docApi.listChildCategoryById(0, cookies.get("packagehub-token").slice(10)).then(response => {
+      docApi.listNextChildNode(0, cookies.get("packagehub-token").slice(10)).then(response => {
 
         this.tableData = response.data.childList
       })
     },
     // 加载列表数据
     load(tree, treeNode, resolve) {
-      docApi.listChildCategoryById(tree.id, cookies.get("packagehub-token").slice(10)).then(response => {
+      docApi.listNextChildNode(tree.id, cookies.get("packagehub-token").slice(10)).then(response => {
         resolve(response.data.childList)
       })
     },
@@ -169,7 +180,7 @@ export default {
       console.log("开始删节点了")
       await docApi.remove(row.id)
       console.log("已经提交后台了")
-      await docApi.listChildCategoryById(row.parentId).then(response => {
+      await docApi.listNextChildNode(row.parentId, cookies.get("packagehub-token").slice(10)).then(response => {
         this.$set(this.$refs.treeTable.store.states.lazyTreeNodeMap, row.parentId, response.data.childList)
       })
     },
@@ -193,16 +204,17 @@ export default {
       } else if (currentRow.status == 'addRow'){
         console.log("新增category，父id是：" + data.parentId)
         await docApi.save(data)
-        await docApi.listChildCategoryById(this.row.id).then(response => {
+        await docApi.listNextChildNode(this.row.id, cookies.get("packagehub-token").slice(10)).then(response => {
           this.$set(this.$refs.treeTable.store.states.lazyTreeNodeMap, this.row.id, response.data.childList)
         })
         this.$refs.treeTable.toggleRowExpansion(this.row, true);
       } else if (currentRow.status == 'editRow'){
-        console.log("编辑category，父id是：" + data.parentId)
+        console.log("编辑category，父id是：" + data.parentId + JSON.stringify(data))
         await docApi.update(data)
         this.$set(this.row, 'title', this.formData.title)
         this.$set(this.row, 'department', this.formData.department)
         this.$set(this.row, 'description', this.formData.description)
+        this.$set(this.row, 'pubRange', this.formData.pubRange)
       } else {
         console.log("你想干嘛？")
       }

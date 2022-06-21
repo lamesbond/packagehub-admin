@@ -49,6 +49,12 @@
           <el-tag v-else type="success" size="mini">已发布</el-tag>
         </template>
       </el-table-column>
+      <el-table-column label="发行范围">
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.pubRange == '0'" type="danger" size="mini">私有</el-tag>
+          <el-tag v-else type="success" size="mini">公开</el-tag>
+        </template>
+      </el-table-column>
 
       <el-table-column label="操作" width="350" align="center">
         <template slot-scope="scope">
@@ -65,10 +71,10 @@
     </el-table>
 
     <!-- 编辑回显的弹框  其实新增也可以用这个弹框但是没写 -->
-    <el-dialog title="提示" class="dia_box" :visible.sync="dialogFlag" width="500px">
+    <el-dialog title="新建项目" class="dia_box" :visible.sync="dialogFlag" width="500px">
 
       <el-form :model="formData">
-        <el-form-item label="标题" label-width="128px">
+        <el-form-item label="项目名" label-width="128px">
           <el-input v-model="formData.name" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="部门" label-width="128px">
@@ -76,6 +82,10 @@
         </el-form-item>
         <el-form-item label="描述" label-width="128px">
           <el-input v-model="formData.description" autocomplete="on"></el-input>
+        </el-form-item>
+        <el-form-item label="范围" label-width="128px">
+          <el-radio v-model="formData.pubRange" label="1">公开</el-radio>
+          <el-radio v-model="formData.pubRange" label="0">私有</el-radio>
         </el-form-item>
       </el-form>
 
@@ -104,7 +114,8 @@ export default {
         department: '',
         description: '',
         type: '0',
-        pubStatus: '0'
+        pubStatus: '0',
+        pubRange: '0'
       },
       currentRow: {
         status: '',
@@ -123,13 +134,13 @@ export default {
   methods: {
 
     fetchData() {
-      projectApi.listChildCategoryById(0, cookies.get("packagehub-token").slice(10)).then(response => {
+      projectApi.listNextChildNode(0, cookies.get("packagehub-token").slice(10)).then(response => {
         this.tableData = response.data.childList
       })
     },
     // 加载列表数据
     load(tree, treeNode, resolve) {
-      projectApi.listChildCategoryById(tree.id, cookies.get("packagehub-token").slice(10)).then(response => {
+      projectApi.listNextChildNode(tree.id, cookies.get("packagehub-token").slice(10)).then(response => {
         resolve(response.data.childList)
       })
     },
@@ -171,8 +182,8 @@ export default {
     async handleDelRow(row,index) {
       console.log("开始删节点了")
       await projectApi.remove(row.id)
-      console.log("已经提交后台了")
-      await projectApi.listChildCategoryById(row.parentId).then(response => {
+      console.log("已经提交后台了" + row.id)
+      await projectApi.listNextChildNode(row.parentId, cookies.get("packagehub-token").slice(10)).then(response => {
         this.$set(this.$refs.treeTable.store.states.lazyTreeNodeMap, row.parentId, response.data.childList)
       })
     },
@@ -190,13 +201,13 @@ export default {
       data.userId = cookies.get("packagehub-token").slice(10)
       let currentRow = this.currentRow
       if (currentRow.status == 'addProject') {
-        console.log("新增project，父id是：" + '0')
+        console.log("新增project，父id是：" + '0' + JSON.stringify(data))
         await projectApi.save(data)
         this.tableData.unshift(data)
       } else if (currentRow.status == 'addRow'){
-        console.log("新增category，父id是：" + data.parentId)
+        console.log("新增category，父id是：" + data.parentId + JSON.stringify(data))
         await projectApi.save(data)
-        await projectApi.listChildCategoryById(this.row.id).then(response => {
+        await projectApi.listNextChildNode(this.row.id, cookies.get("packagehub-token").slice(10)).then(response => {
           this.$set(this.$refs.treeTable.store.states.lazyTreeNodeMap, this.row.id, response.data.childList)
         })
         this.$refs.treeTable.toggleRowExpansion(this.row, true);
@@ -206,6 +217,7 @@ export default {
         this.$set(this.row, 'title', this.formData.title)
         this.$set(this.row, 'department', this.formData.department)
         this.$set(this.row, 'description', this.formData.description)
+        this.$set(this.row, 'pubRange', this.formData.pubRange)
       } else {
         console.log("你想干嘛？")
       }
