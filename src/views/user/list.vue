@@ -18,7 +18,7 @@
       <el-table-column prop='username' label="用户名" width="260"></el-table-column>
       <el-table-column prop="email" label="邮箱" />
       <el-table-column prop="department" label="部门" />
-      <el-table-column prop="role" label="角色" />
+      <el-table-column prop="roles" label="角色" />
       <el-table-column label="状态">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.status == 1" type="" size="mini">正常</el-tag>
@@ -67,7 +67,9 @@
           <el-input v-model="formData.department" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="角色" label-width="128px">
-          <el-input v-model="formData.role" autocomplete="off"></el-input>
+          <el-radio v-model="formData.roles" label="admin">管理员</el-radio>
+          <el-radio v-model="formData.roles" label="uploader">上传者</el-radio>
+          <el-radio v-model="formData.roles" label="client">客户</el-radio>
         </el-form-item>
       </el-form>
 
